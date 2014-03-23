@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
@@ -46,11 +47,13 @@ public class CalendarGUI extends javax.swing.JFrame {
 		this.fillTableForThisMonth();
 	}
 
-	// SWAP 1, TEAM 07 SMELL: Switch Statements - could probably use Replace
-	// Conditional with Polymorphism here.
+	// SWAP 1, TEAM 07
+	// SMELL: Switch Statements - each case holds nearly identical code; check
+	// libraries for method that already does this or possibly use Replace Type
+	// Code with Subclasses.
 
 	private void setTitleMonth(int n, int year) {
-		switch (n) {
+		/*switch (n) {
 		case (1):
 			this.monthTitle.setText("January " + year);
 			this.monthName = "January " + year;
@@ -100,7 +103,9 @@ public class CalendarGUI extends javax.swing.JFrame {
 			this.monthName = "December " + year;
 			break;
 
-		}
+		}*/
+		this.monthTitle.setText(this.cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + " " + year);
+		this.monthName = this.monthTitle.getText();
 	}
 
 	/**
@@ -109,17 +114,23 @@ public class CalendarGUI extends javax.swing.JFrame {
 	 */
 	public void fillTableForThisMonth() {
 		int currentYear = new GregorianCalendar().get(Calendar.YEAR);
-		this.currentMonth = new GregorianCalendar().get(Calendar.MONTH) + 1;
+		//this.currentMonth = new GregorianCalendar().get(Calendar.MONTH) + 1;
+		this.currentMonth = this.cal.get(Calendar.MONTH)+1;
 		this.setTitleMonth(this.currentMonth, currentYear);
 		this.monthsAhead = 0;
 		this.yearsAhead = 0;
 
 		String keyStart = currentYear + "/"
 				+ String.format("%02d", this.currentMonth);
-		String currentKey = "";
 
-		// SWAP 1, TEAM 07 SMELL: Duplicated Code - this loop is identical to
-		// one in fillTableMonthAhead and fillTableMonthBack
+		// SWAP 1, TEAM 07
+		// QUALITY CHANGE
+
+		// SMELL: Duplicated Code - this loop is identical to one in
+		// fillTableMonthAhead and fillTableMonthBack
+
+		// FIX: Used Extract Method on commented code below, creating
+		// generateCalendarForCurrentMonth from it.
 
 		// Generates calendar for current month if none exists
 		/*
@@ -130,10 +141,16 @@ public class CalendarGUI extends javax.swing.JFrame {
 		 * t.start(); //this.schedule.calculateNextMonth(); } }
 		 */
 
-		generateCalendarForCurrentMonth();
+		generateCalendarForCurrentMonth(keyStart);
 
-		// SWAP 1, TEAM 07 SMELL: Duplicated Code - this loop is almost
-		// identical to one in fillTableMonthAhead and fillTableMonthBack
+		// SWAP 1, TEAM 07
+		// QUALITY CHANGE
+
+		// SMELL: Duplicated Code - this loop is almost identical to one in
+		// fillTableMonthAhead and fillTableMonthBack
+
+		// FIX: Used Extract Method on commented code below, creating
+		// populateCalendar from it.
 
 		/*
 		 * DefaultTableModel table = new DefaultTableModel(new Object[0][0], new
@@ -164,11 +181,12 @@ public class CalendarGUI extends javax.swing.JFrame {
 		 * } this.cal.add(Calendar.DATE, 1); }
 		 */
 
-		populateCalendar(this.currentMonth);
+		DefaultTableModel table = populateCalendar(this.currentMonth, currentYear);
 
-		// SWAP 1, TEAM 07 SMELL: Duplicated Code - the following two lines are
-		// identical to the last lines of fillTableMonthAhead and
-		// fillTableMonthBack.
+		// SWAP 1, TEAM 07
+		// SMELL: Duplicated Code - the following two lines are identical to the
+		// last lines of fillTableMonthAhead and fillTableMonthBack; trivial
+		// case, probably should not be fretted over.
 
 		HTMLGenerator.addMonth(this.monthName, table);
 		this.scheduleTable.setModel(table);
@@ -189,13 +207,22 @@ public class CalendarGUI extends javax.swing.JFrame {
 			showMonth -= 12;
 			this.yearsAhead++;
 		}
+		this.cal.add(Calendar.MONTH, 1);
+		//this.setTitleMonth(showMonth, currentYear);
+		//int currentYear = this.cal.get(Calendar.YEAR);
+		//int showMonth = this.cal.get(Calendar.MONTH)+1;
 		this.setTitleMonth(showMonth, currentYear);
 
 		String keyStart = currentYear + "/" + String.format("%02d", showMonth);
-		String currentKey = "";
 
-		// SWAP 1, TEAM 07 SMELL: Duplicated Code - this loop is identical to
-		// one in fillTableForThisMonth and fillTableMonthBack
+		// SWAP 1, TEAM 07
+		// QUALITY CHANGE
+
+		// SMELL: Duplicated Code - this loop is identical to one in
+		// fillTableForThisMonth and fillTableMonthBack
+
+		// FIX: Remove duplicated code and replace with method call to
+		// generateCalendarForCurrentMonth.
 
 		// Generates calendar for current month if none exists
 		/*
@@ -206,11 +233,16 @@ public class CalendarGUI extends javax.swing.JFrame {
 		 * t.start(); //this.schedule.calculateNextMonth(); } }
 		 */
 
-		generateCalendarForCurrentMonth();
+		generateCalendarForCurrentMonth(keyStart);
 
-		// SWAP 1, TEAM 07 SMELL: Duplicated Code - this loop is almost
-		// identical to one in fillTableForThisMonth and is identical to one in
-		// fillTableMonthBack
+		// SWAP 1, TEAM 07
+		// QUALITY CHANGE
+
+		// SMELL: Duplicated Code - this loop is almost identical to one in
+		// fillTableForThisMonth and is identical to one in fillTableMonthBack
+
+		// FIX: Remove duplicated code and replace with method call to
+		// populateCalendar.
 
 		/*
 		 * DefaultTableModel table = new DefaultTableModel(new Object[0][0], new
@@ -240,11 +272,12 @@ public class CalendarGUI extends javax.swing.JFrame {
 		 * } this.cal.add(Calendar.DATE, 1); }
 		 */
 
-		populateCalendar(showMonth);
+		DefaultTableModel table = populateCalendar(showMonth, currentYear);
 
-		// SWAP 1, TEAM 07 SMELL: Duplicated Code - the following two lines are
-		// identical to the last two in fillTableForThisMonth and
-		// fillTableMonthBack.
+		// SWAP 1, TEAM 07
+		// SMELL: Duplicated Code - the following two lines are identical to the
+		// last two in fillTableForThisMonth and fillTableMonthBack; trivial
+		// case, probably should not be fretted over.
 
 		HTMLGenerator.addMonth(this.monthName, table);
 		this.scheduleTable.setModel(table);
@@ -280,14 +313,20 @@ public class CalendarGUI extends javax.swing.JFrame {
 			this.monthsAhead++;
 
 		} else {
+			this.cal.add(Calendar.MONTH, -1);
 			this.setTitleMonth(showMonth, currentYear);
 
 			String keyStart = currentYear + "/"
 					+ String.format("%02d", showMonth);
-			String currentKey = "";
 
-			// SWAP 1, TEAM 07 SMELL: Duplicated Code - this loop is identical
-			// to one in fillTableForThisMonth and fillTableMonthAhead
+			// SWAP 1, TEAM 07
+			// QUALITY CHANGE
+
+			// SMELL: Duplicated Code - this loop is identical to one in
+			// fillTableForThisMonth and fillTableMonthAhead
+
+			// FIX: Remove duplicated code and replace with method call to
+			// generateCalendarForCurrentMonth.
 
 			// Generates calendar for current month if none exists
 			/*
@@ -298,11 +337,17 @@ public class CalendarGUI extends javax.swing.JFrame {
 			 * t.start(); //this.schedule.calculateNextMonth(); } }
 			 */
 
-			generateCalendarForCurrentMonth();
+			generateCalendarForCurrentMonth(keyStart);
 
-			// SWAP 1, TEAM 07 SMELL: Duplicated Code - this loop is almost
-			// identical to one in fillTableForThisMonth and is identical to one
-			// in fillTableMonthAhead
+			// SWAP 1, TEAM 07
+			// QUALITY CHANGE
+
+			// SMELL: Duplicated Code - this loop is almost identical to one in
+			// fillTableForThisMonth and is identical to one in
+			// fillTableMonthAhead
+
+			// FIX: Remove duplicated code and replace wtih method call to
+			// populateCalendar.
 
 			/*
 			 * DefaultTableModel table = new DefaultTableModel(new Object[0][0],
@@ -332,11 +377,13 @@ public class CalendarGUI extends javax.swing.JFrame {
 			 * } this.cal.add(Calendar.DATE, 1); }
 			 */
 
-			populateCalendar(showMonth);
+			DefaultTableModel table = populateCalendar(showMonth, currentYear);
 
-			// SWAP 1, TEAM 07 SMELL: Duplicated Code - the following two lines
-			// of code are duplicated from fillTableForThisMonth and
-			// fillTableMonthAhead.
+			// SWAP 1, TEAM 07
+			// SMELL: Duplicated Code - the following two lines are identical to
+			// the
+			// last two in fillTableForThisMonth and fillTableMonthBack; trivial
+			// case, probably should not be fretted over.
 
 			this.scheduleTable.setModel(table);
 			HTMLGenerator.addMonth(this.monthName, table);
@@ -344,9 +391,10 @@ public class CalendarGUI extends javax.swing.JFrame {
 
 	}
 
-	// SWAP 1, TEAM 07 SMELL: Switch Statements - could probably use Replace
-	// Type Code with Subclasses;
-	// not too sure how useful that would be here.
+	// SWAP 1, TEAM 07
+	// SMELL: Switch Statements - should probably look into libraries to see if
+	// this functionality is already implemented; could probably use Replace
+	// Type Code with Subclasses - not too sure how useful that would be here.
 
 	private String getNameforNum(int n) {
 		switch (n) {
@@ -367,6 +415,13 @@ public class CalendarGUI extends javax.swing.JFrame {
 		}
 		return null;
 	}
+
+	// SWAP 1, TEAM 07
+	// SMELL: Long Method - could be broken up into a method for setting up each
+	// component individually and one method for putting them all on the display
+	// using Extract Method. This would allow each individual GUI component to
+	// be reused elsewhere if necessary, as well as allowing selective creation
+	// of components if desired.
 
 	private void initComponents() {
 
@@ -613,6 +668,9 @@ public class CalendarGUI extends javax.swing.JFrame {
 		HTMLGenerator.writeHtml();
 	}
 
+	// SWAP 1, TEAM 07
+	// SMELL: Not sure, but I think the algorithm could be improved...
+	
 	/**
 	 * @param evt
 	 */
@@ -693,7 +751,8 @@ public class CalendarGUI extends javax.swing.JFrame {
 	// SWAP 1, TEAM 07 Used Extract Method on code below to reduce Duplicated
 	// Code.
 
-	private void generateCalendarForCurrentMonth() {
+	private void generateCalendarForCurrentMonth(String keyStart) {
+		String currentKey = "";
 		while (currentKey.equals("")) {
 			Set<String> keys = this.scheduleMap.keySet();
 			for (String key : keys) {
@@ -712,7 +771,7 @@ public class CalendarGUI extends javax.swing.JFrame {
 	// SWAP 1, TEAM 07 Used Extract Method on code below to reduce Duplicated
 	// Code.
 
-	private void populateCalendar(int month) {
+	private DefaultTableModel populateCalendar(int month, int currentYear) {
 		DefaultTableModel table = new DefaultTableModel(new Object[0][0],
 				new String[0][0]);
 
@@ -749,6 +808,7 @@ public class CalendarGUI extends javax.swing.JFrame {
 			}
 			this.cal.add(Calendar.DATE, 1);
 		}
+		return table;
 	}
 
 	private javax.swing.JMenuItem editDays;
