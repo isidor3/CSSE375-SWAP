@@ -63,6 +63,8 @@ public class Schedule extends Thread implements Serializable {
 		return this.workers;
 	}
 
+	//SWAP 1 TEAM 7 QUALITY CHANGES
+	//This is one of the methods extracted from calculateNextMonth
 	private void generateIndices() {
 		for (int i = 0; i < this.workers.size(); i++) {
 			for (Day day : this.workers.get(i).getDays()) {
@@ -72,6 +74,21 @@ public class Schedule extends Thread implements Serializable {
 		}
 	}
 
+	
+	//SWAP 1 TEAM 7 QUALITY CHANGES
+	//Modify the existing schedule when one already exists
+	private synchronized void ammendSchedule() {
+		String lastDateMade = this.schedule.lastKey();
+		String[] parts = lastDateMade.split("/");
+		int year = Integer.parseInt(parts[0]);
+		int month = Integer.parseInt(parts[1]) - 1;
+		int day = Integer.parseInt(parts[2]);
+		this.cal = new GregorianCalendar(year, month, day);
+		int tempNum = this.cal.get(Calendar.MONTH);
+		while (tempNum == this.cal.get(Calendar.MONTH)) {
+			this.cal.add(Calendar.DATE, 1);
+		}
+	}
 	/**
 	 * Calculates another month of schedule based on workers availability.
 	 * 
@@ -81,18 +98,7 @@ public class Schedule extends Thread implements Serializable {
 		int initialSize = this.schedule.size();
 
 		// If the schedule has already been generated
-		if (this.schedule.size() > 0) {
-			String lastDateMade = this.schedule.lastKey();
-			String[] parts = lastDateMade.split("/");
-			int year = Integer.parseInt(parts[0]);
-			int month = Integer.parseInt(parts[1]) - 1;
-			int day = Integer.parseInt(parts[2]);
-			this.cal = new GregorianCalendar(year, month, day);
-			int tempNum = this.cal.get(Calendar.MONTH);
-			while (tempNum == this.cal.get(Calendar.MONTH)) {
-				this.cal.add(Calendar.DATE, 1);
-			}
-		}
+		if (this.schedule.size() > 0) ammendSchedule();
 
 		// Used to see if month changes
 		int currentMonth = this.cal.get(Calendar.MONTH);
@@ -110,7 +116,6 @@ public class Schedule extends Thread implements Serializable {
 
 					TreeMap<String, Worker> jobsWithWorker = new TreeMap<String, Worker>();
 					ArrayList<String> workersWorking = new ArrayList<String>();
-
 					ArrayList<String> jobsInOrder = day.getJobs();
 
 					// Used for html later
@@ -118,21 +123,17 @@ public class Schedule extends Thread implements Serializable {
 					daysInMonth++;
 					numOfJobs.add(jobsInOrder.size());
 
-					//
-
 					for (String job : jobsInOrder) {
 
 						ArrayList<Worker> workersForJob = new ArrayList<Worker>();
 
-						for (Worker worker : this.workerIndices.get(this
-								.numForName(day.getNameOfDay()))) {
+						for (Worker worker : this.workerIndices.get(this.numForName(day.getNameOfDay()))) {
 							Day workerDay = worker.getDayWithName(day
 									.getNameOfDay());
-							if (workerDay.getJobs().contains(job)
-									&& !workersWorking.contains(worker
-											.getName())) {
+							if (workerDay.getJobs().contains(job) && 
+								!workersWorking.contains(worker.getName())) {
+								
 								workersForJob.add(worker);
-
 							}
 						}
 						if (workersForJob.size() > 0) {
@@ -160,15 +161,8 @@ public class Schedule extends Thread implements Serializable {
 							this.workerForEveryJob = false;
 							break;
 						}
-
 					}
-					String date = this.cal.get(Calendar.YEAR)
-							+ "/"
-							+ String.format("%02d",
-									(this.cal.get(Calendar.MONTH) + 1))
-							+ "/"
-							+ String.format("%02d",
-									this.cal.get(Calendar.DAY_OF_MONTH));
+					String date = genDate();
 					this.schedule.put(date, jobsWithWorker);
 					break; // Breaks so it doesn't check the other days
 				}
@@ -186,6 +180,15 @@ public class Schedule extends Thread implements Serializable {
 		Main.dumpConfigFile();
 	}
 
+	private synchronized String genDate() {
+		return this.cal.get(Calendar.YEAR)
+				+ "/"
+				+ String.format("%02d",
+						(this.cal.get(Calendar.MONTH) + 1))
+				+ "/"
+				+ String.format("%02d",
+						this.cal.get(Calendar.DAY_OF_MONTH));
+	}
 	private int numForName(String nameOfDay) {
 		int dayNum = 0;
 		if (nameOfDay.equals("Sunday")) {
