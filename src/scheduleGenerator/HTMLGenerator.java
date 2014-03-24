@@ -140,6 +140,9 @@ public class HTMLGenerator {
 	static String table = "\nvar tables = ["; // This needs to remove the last
 											// comma and add a bracket.
 
+	//SWAP 1 TEAM 7 SMELL: Excessive use of literals
+	//This heavy use of literals should be moved to a file or two,
+	//to allow for changes after the program is compiled
 	/**
 	 * Used to put header.
 	 */
