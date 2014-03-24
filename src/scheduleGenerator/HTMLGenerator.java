@@ -64,7 +64,7 @@ public class HTMLGenerator {
 	 */
 	public static void makeTable(int numDays, ArrayList<Integer> numJobs) {
 		String tempTable = "\"<table width='100%' height='44%' border='1'><tr>";
-		for(int c = 0; c<numDays; c++) {
+		for(int c = 0; c<numJobs.size(); c++) {
 			tempTable += "<td class='day'>" +
 					"<table width='100%' border='1'>" +
 					"<tr>" +

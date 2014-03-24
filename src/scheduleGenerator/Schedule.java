@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -119,10 +120,16 @@ public class Schedule extends Thread implements Serializable {
 
 	// This method was extracted from calculateNextMonth serving the purpose of
 	// selecting a worker to perform a particular job.
+	
+	//SWAP 1, TEAM 07
+	// Bonus Feature
+	
+	//After we split the mega-method into it's required parts, changing the code
+	//so that it only picks the worker who has worked on the selected job the least
+	//was a trivial task.
 	private synchronized Worker pickWorkerForJob(
 			ArrayList<Worker> workersAvailable, String job) {
-		Worker workerForJob = workersAvailable.get(new Random()
-				.nextInt(workersAvailable.size()));
+		Worker workerForJob = workersAvailable.get(0);
 		for (Worker w : workersAvailable) {
 			if (w.numWorkedForJob(job) < workerForJob.numWorkedForJob(job)) {
 				workerForJob = w;
