@@ -13,21 +13,20 @@ import java.util.ArrayList;
  * This class handles the interaction of one frame to another as well as
  * handling initialization.
  * 
+ * SWAP 1, TEAM 6
+ * 
+ * SMELL: Large Class - Main handles many different things such as toggling all
+ * the different GUI frames. Refactoring here would lower coupling and make this
+ * class more cohesive.
+ * 
  * @author Mason Schneider and Orion Martin. Created Oct 8, 2012.
  */
-
-//SWAP 1 TEAM 7 SMELL: Large Class
-//The main class is trying to do quite a lot, it has to instanciate the program state
-//as well as manage configuration an calendar changes. the configuration management
-//and calendar management should be moved to other classes.
-//This will allow for the addition of more complex file management, such as loading
-//and saving and managing multiple config files and calendars.
 public class Main {
 
 	private static ArrayList<Day> days;
 	private static ArrayList<Worker> workers;
 	private static File path = new File("schedule_data.ser");
-	
+
 	/**
 	 * Configures days.
 	 */
@@ -50,21 +49,21 @@ public class Main {
 	public static void main(String[] args) {
 		path = new File("schedule_data.ser");
 		config = new Config();
-		
-		//Code to open the config file.
-		
+
+		// Code to open the config file.
+
 		try {
 			recallConfigFile();
-			if(getSchedule() != (null)){
+			if (getSchedule() != (null)) {
 				cal = new CalendarGUI(getSchedule());
-				//config.setVisible(true);
+				// config.setVisible(true);
 				cal.setVisible(true);
-			} else{
+			} else {
 				config.setVisible(true);
 			}
 		} catch (Exception exception) {
 			exception.printStackTrace();
-			
+
 		}
 	}
 
@@ -78,6 +77,12 @@ public class Main {
 
 	/**
 	 * Changes visible of calendar.
+	 * 
+	 * SWAP 1, TEAM 6
+	 * 
+	 * SMELL: Middle Man - this method is only about changing an aspect of
+	 * another object. Refactoring this would remove an unnecessary layer of
+	 * indirection.
 	 * 
 	 */
 	public static void toggleCalendar() {
@@ -148,13 +153,13 @@ public class Main {
 	public static void setDays(ArrayList<Day> d) {
 		days = d;
 	}
-	
+
 	/**
 	 * Dumps data to the file schedule_data.ser.
-	 *
+	 * 
 	 */
-	public static void dumpConfigFile(){
-		
+	public static void dumpConfigFile() {
+
 		try {
 			path.delete();
 			path.createNewFile();
@@ -166,7 +171,7 @@ public class Main {
 			fileStore.writeObject(HTMLGenerator.getTables());
 			fileStore.close();
 			dumpConfig.close();
-			
+
 			System.out.println("Stored");
 
 		} catch (FileNotFoundException exception) {
@@ -175,23 +180,24 @@ public class Main {
 			exception.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Recalls data from schedule_data.ser.
-	 *
+	 * 
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	public static void recallConfigFile() throws ClassNotFoundException, IOException{
-		if(path.exists()) {
+	public static void recallConfigFile() throws ClassNotFoundException,
+			IOException {
+		if (path.exists()) {
 			FileInputStream recallConfig = new FileInputStream(path);
 			ObjectInputStream fileRecall = new ObjectInputStream(recallConfig);
 			days = (ArrayList<Day>) fileRecall.readObject();
 			workers = (ArrayList<Worker>) fileRecall.readObject();
 			schedule = (Schedule) fileRecall.readObject();
-			HTMLGenerator.setTables((String)fileRecall.readObject());
-			
+			HTMLGenerator.setTables((String) fileRecall.readObject());
+
 			fileRecall.close();
 			recallConfig.close();
 		}

@@ -50,6 +50,9 @@ public class Worker implements Serializable{
 	 * @param jobName
 	 */
 	public void addWorkedJob(String jobName) {
+		if(!this.timesWorked.containsKey(jobName)){
+			this.timesWorked.put(jobName, 0);
+		}
 		this.timesWorked.put(jobName, this.timesWorked.get(jobName).intValue() + 1);
 	}
 	

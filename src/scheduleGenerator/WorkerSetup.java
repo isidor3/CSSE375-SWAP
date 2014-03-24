@@ -51,9 +51,10 @@ public class WorkerSetup extends javax.swing.JFrame {
 						JPanel p = (JPanel) view.getComponent(0);
 
 						for (Component job : p.getComponents()) {
-							for (String workerJob : workers.get(c).getDays().get(n)
-									.getJobs()) {
-								if (((JCheckBox) job).getText().equals(workerJob)) {
+							for (String workerJob : workers.get(c).getDays()
+									.get(n).getJobs()) {
+								if (((JCheckBox) job).getText().equals(
+										workerJob)) {
 									((JCheckBox) job).setSelected(true);
 								}
 							}
@@ -75,10 +76,13 @@ public class WorkerSetup extends javax.swing.JFrame {
 		addWorker();
 	}
 
-	//SWAP 1 TEAM 7 Method too big
-	//This method should be split up into a few smaller methods
-	//doing so would enable us to support different user interface types
-	//for the workers.
+	/**
+	 * SWAP 1, TEAM 6
+	 * 
+	 * SMELL: long method - this method is crazy long with a lot of hard to
+	 * follow GUI components. Refactoring it would enable new functionality that
+	 * could use bits and pieces of this method without duplicating code.
+	 */
 	private void addWorker() {
 		this.days = Main.getDays();
 		javax.swing.JTabbedPane tempWorkerDays = new javax.swing.JTabbedPane();
@@ -363,6 +367,12 @@ public class WorkerSetup extends javax.swing.JFrame {
 	}
 
 	/**
+	 * SWAP 1, TEAM 6
+	 * 
+	 * SMELL: Feature Envy - in the if(allGood) section, a lot of Main's
+	 * functions are called. Refactoring this would enable easier changes made
+	 * directly on Main
+	 * 
 	 * @param evt
 	 */
 	private void nextButtonActionPerformed(java.awt.event.ActionEvent evt) {
