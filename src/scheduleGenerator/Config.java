@@ -16,6 +16,10 @@ import javax.swing.*;
  *
  * @author schneimd
  */
+
+//SWAP 1 TEAM 7 SMELL Large Class - This class is trying to do everything relating to 
+// the configuration GUI, instead this class should be split up into more classes to better
+// deal with different GUI variations.
 public class Config extends javax.swing.JFrame {
 
     private boolean firstSelection = true;

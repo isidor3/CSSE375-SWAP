@@ -77,6 +77,7 @@ public class Schedule extends Thread implements Serializable {
 	
 	//SWAP 1 TEAM 7 QUALITY CHANGES
 	//Modify the existing schedule when one already exists
+	//Created using extract method
 	private synchronized void ammendSchedule() {
 		String lastDateMade = this.schedule.lastKey();
 		String[] parts = lastDateMade.split("/");

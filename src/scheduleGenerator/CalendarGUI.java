@@ -18,6 +18,10 @@ import javax.swing.table.DefaultTableModel;
  * 
  * @author schneimd
  */
+// SWAP 1, TEAM 7 SMELL Shotgun Surgery - Any time a change has to be made to the GUI, 
+// Many different changes need to be made throughout this file to properly implement them.
+// By fixing this we could implement a data driven GUI that would allow changes based on
+// user needs.
 public class CalendarGUI extends javax.swing.JFrame {
 
 	// SWAP 1, TEAM 07
