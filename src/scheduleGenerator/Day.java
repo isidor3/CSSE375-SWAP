@@ -9,6 +9,8 @@ import java.util.ArrayList;
  * @author schneimd.
  *         Created Oct 15, 2012.
  */
+//SWAP 1 TEAM 7 SMELL: Data class - Day really is only a container for a list of jobs
+//Removing this class would simplify many of the classes that use it and allow for 
 public class Day implements Serializable{
 	
 	private String dayOfWeek;
