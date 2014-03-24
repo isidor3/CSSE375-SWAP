@@ -10,9 +10,9 @@ import java.util.Locale;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
-
 import javax.swing.JMenuItem;
 import javax.swing.table.DefaultTableModel;
+import darrylbu.util.MenuScroller;
 
 /**
  * 
@@ -42,6 +42,13 @@ public class CalendarGUI extends javax.swing.JFrame {
 	private TreeMap<String, TreeMap<String, Worker>> scheduleMap;
 	private int earliestYear, earliestMonth;
 
+	// SWAP 1, TEAM 07
+	// Additional Feature
+
+	// This field was added to allow the CalendarGUI to be internationalized
+	// through generation based on Locale.
+	private Locale locale;
+
 	/**
 	 * Creates new form Calendar
 	 * 
@@ -55,6 +62,7 @@ public class CalendarGUI extends javax.swing.JFrame {
 		this.earliestMonth = Integer.parseInt(earliest[1]);
 		// this.earliestDay = Integer.parseInt(earliest[2]);
 		this.cal = new GregorianCalendar();
+		this.locale = Locale.getDefault();
 		initComponents();
 
 		// SWAP 1, TEAM 07
@@ -320,6 +328,10 @@ public class CalendarGUI extends javax.swing.JFrame {
 		this.generateMenu = new javax.swing.JMenu();
 		this.genHtml = new javax.swing.JMenuItem();
 		this.generateText = new javax.swing.JMenuItem();
+		this.preferencesMenu = new javax.swing.JMenu();
+		this.localeSubMenu = new javax.swing.JMenu();
+		// this.localesPane = new javax.swing.JScrollPane();
+		// this.localesPaneMenu = new javax.swing.JMenu();
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Calendar");
@@ -452,6 +464,30 @@ public class CalendarGUI extends javax.swing.JFrame {
 		this.generateMenu.add(this.generateText);
 
 		this.menuBar.add(this.generateMenu);
+
+		// SWAP 1, TEAM 07
+		// Additional Feature
+
+		// The code below for adding a Preferences menu was added to support
+		// localization options.
+		this.preferencesMenu.setText("Preferences");
+		this.localeSubMenu.setText("Locale");
+
+		for (Locale l : Locale.getAvailableLocales()) {
+			JMenuItem item = new JMenuItem(l.getDisplayName(l));
+			item.setLocale(l);
+			item.addActionListener(new java.awt.event.ActionListener() {
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					changeLocaleActionPerformed(evt);
+				}
+			});
+			this.localeSubMenu.add(item);
+		}
+		MenuScroller.setScrollerFor(this.localeSubMenu, 10);
+		this.preferencesMenu.add(this.localeSubMenu);
+
+		this.menuBar.add(this.preferencesMenu);
 
 		setJMenuBar(this.menuBar);
 
@@ -641,6 +677,27 @@ public class CalendarGUI extends javax.swing.JFrame {
 		// removed
 	}
 
+	// SWAP 1, TEAM 07
+	// Additional Feature
+
+	// The method below was added to allow for localization of the application,
+	// enabling schedules to be displayed in different languages. This would
+	// have been more difficult if the code had not been refactored to remove
+	// duplication first because not only would changes need to be made in
+	// multiple locations, but the switch statement that was removed would have
+	// had to have been expanded to account for each possible locale.
+	/**
+	 * @param evt
+	 */
+	private void changeLocaleActionPerformed(java.awt.event.ActionEvent evt) {
+		JMenuItem source = (JMenuItem) evt.getSource();
+		this.locale = source.getLocale();
+		this.monthTitle
+				.setText(this.cal.getDisplayName(Calendar.MONTH, Calendar.LONG,
+						this.locale) + " " + this.cal.get(Calendar.YEAR));
+		this.monthTitle.repaint();
+	}
+
 	private void editCell(Worker input) {
 		int i = this.scheduleTable.getSelectedRow();
 		int j = this.scheduleTable.getSelectedColumn();
@@ -663,8 +720,7 @@ public class CalendarGUI extends javax.swing.JFrame {
 
 	// Used Extract Method on code below to reduce the length of the
 	// fillTableForMonth method and to eliminate the comment explaining what
-	// this
-	// code is supposed to do.
+	// this code is supposed to do.
 
 	private void generateCalendarForMonth(String keyStart) {
 		String currentKey = "";
@@ -738,10 +794,9 @@ public class CalendarGUI extends javax.swing.JFrame {
 	 * Displays the calendar for the current month based on this.cal
 	 */
 	public void fillTableForMonth() {
-		this.monthTitle.setText(this.cal.getDisplayName(Calendar.MONTH,
-				Calendar.LONG, Locale.getDefault())
-				+ " "
-				+ this.cal.get(Calendar.YEAR));
+		this.monthTitle
+				.setText(this.cal.getDisplayName(Calendar.MONTH, Calendar.LONG,
+						this.locale) + " " + this.cal.get(Calendar.YEAR));
 
 		String keyStart = this.cal.get(Calendar.YEAR) + "/"
 				+ String.format("%02d", this.cal.get(Calendar.MONTH) + 1);
@@ -770,4 +825,12 @@ public class CalendarGUI extends javax.swing.JFrame {
 	private javax.swing.JMenuItem saveChanges;
 	private javax.swing.JTable scheduleTable;
 	private javax.swing.JMenuItem undoChanges;
+
+	// SWAP 1, TEAM 07
+	// Additional Feature
+
+	// The two fields below were added to enable switching between Locales using
+	// a menu on the GUI.
+	private javax.swing.JMenu preferencesMenu;
+	private javax.swing.JMenu localeSubMenu;
 }
