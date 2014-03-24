@@ -31,6 +31,11 @@ public class Schedule extends Thread implements Serializable {
 	 * @param daySlots
 	 * @param wrks
 	 */
+	
+	//SWAP 1 TEAM 7 SMELL: Incomplete Library Class - The GregorianCalendar is used for
+	//some of the date functionality, but not universally, it would need to be extended
+	//to be able to satisfy all of our needs. If we did this, we could greatly simply
+	//the code by not passing around days of the week as strings.
 	public Schedule(ArrayList<Day> daySlots, ArrayList<Worker> wrks) {
 		this.workers = wrks;
 		this.days = daySlots;
