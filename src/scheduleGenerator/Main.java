@@ -15,6 +15,13 @@ import java.util.ArrayList;
  * 
  * @author Mason Schneider and Orion Martin. Created Oct 8, 2012.
  */
+
+//SWAP 1 TEAM 7 SMELL: Large Class
+//The main class is trying to do quite a lot, it has to instanciate the program state
+//as well as manage configuration an calendar changes. the configuration management
+//and calendar management should be moved to other classes.
+//This will allow for the addition of more complex file management, such as loading
+//and saving and managing multiple config files and calendars.
 public class Main {
 
 	private static ArrayList<Day> days;

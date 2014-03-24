@@ -9,8 +9,15 @@ import java.util.ArrayList;
  * @author schneimd.
  *         Created Oct 15, 2012.
  */
+//SWAP 1 TEAM 7 SMELL: Data class - Day really is only a container for a list of jobs
+//Removing this class would simplify many of the classes that use it and allow for 
 public class Day implements Serializable{
 	
+	//SWAP 1 TEAM 7 SMELL: Primitive Obsession - 
+	//There is probably a better way to represent a day of the week
+	//And a Job besides encoding it into a string.
+	//Changing this could allow for special days, such as holidays,
+	//Or allowing jobs to have more properties, such as how long they take to complete.
 	private String dayOfWeek;
 	private ArrayList<String> jobs = new ArrayList<String>();
 	

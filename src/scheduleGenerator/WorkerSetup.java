@@ -75,6 +75,10 @@ public class WorkerSetup extends javax.swing.JFrame {
 		addWorker();
 	}
 
+	//SWAP 1 TEAM 7 Method too big
+	//This method should be split up into a few smaller methods
+	//doing so would enable us to support different user interface types
+	//for the workers.
 	private void addWorker() {
 		this.days = Main.getDays();
 		javax.swing.JTabbedPane tempWorkerDays = new javax.swing.JTabbedPane();
