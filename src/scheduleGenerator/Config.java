@@ -4,12 +4,15 @@
  */
 package scheduleGenerator;
 
+import java.util.Calendar;
+import java.util.Locale;
 import java.awt.Dimension;
-import java.text.DateFormatSymbols;
+//import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+//import java.util.List;
+//import java.util.Locale;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -43,38 +46,31 @@ public class Config extends javax.swing.JFrame {
 	 * on the name of the day only)
 	 * 
 	 */
-	private HashMap<String, JCheckBox> daysChecked = new HashMap<String, JCheckBox>();
-	private HashMap<String, JList> daysList = new HashMap<String, JList>();
-	private HashMap<String, JScrollPane> daysScrollPane = new HashMap<String, JScrollPane>();
-	private HashMap<String, JTextField> daysTextField = new HashMap<String, JTextField>();
-	private HashMap<String, JButton> daysAdd = new HashMap<String, JButton>();
-	private HashMap<String, JButton> daysDelete = new HashMap<String, JButton>();
-	private HashMap<String, JLabel> daysLabel = new HashMap<String, JLabel>();
-	private HashMap<String, JPanel> daysPanelTab = new HashMap<String, JPanel>();
+	private HashMap<Integer, JCheckBox> daysChecked = new HashMap<Integer, JCheckBox>();
+	private HashMap<Integer, JList> daysList = new HashMap<Integer, JList>();
+	private HashMap<Integer, JScrollPane> daysScrollPane = new HashMap<Integer, JScrollPane>();
+	private HashMap<Integer, JTextField> daysTextField = new HashMap<Integer, JTextField>();
+	private HashMap<Integer, JButton> daysAdd = new HashMap<Integer, JButton>();
+	private HashMap<Integer, JButton> daysDelete = new HashMap<Integer, JButton>();
+	private HashMap<Integer, JLabel> daysLabel = new HashMap<Integer, JLabel>();
+	private HashMap<Integer, JPanel> daysPanelTab = new HashMap<Integer, JPanel>();
 
-	private String[] daysOfWeek = { "Sunday", "Monday", "Tuesday", "Wednesday",
-			"Thursday", "Friday", "Saturday" };
+	/*
+	 * private String[] daysOfWeek = { "Sunday", "Monday", "Tuesday",
+	 * "Wednesday", "Thursday", "Friday", "Saturday" };
+	 */
 
-	public int getDayNum(Day day) {
-
-		int dayNum = 0;
-		if (day.getNameOfDay().equals("Sunday")) {
-			dayNum = 0;
-		} else if (day.getNameOfDay().equals("Monday")) {
-			dayNum = 1;
-		} else if (day.getNameOfDay().equals("Tuesday")) {
-			dayNum = 2;
-		} else if (day.getNameOfDay().equals("Wednesday")) {
-			dayNum = 3;
-		} else if (day.getNameOfDay().equals("Thursday")) {
-			dayNum = 4;
-		} else if (day.getNameOfDay().equals("Friday")) {
-			dayNum = 5;
-		} else if (day.getNameOfDay().equals("Saturday")) {
-			dayNum = 6;
-		}
-		return dayNum;
-	}
+	/*
+	 * public int getDayNum(Day day) {
+	 * 
+	 * int dayNum = 0; if (day.getNameOfDay().equals("Sunday")) { dayNum = 0; }
+	 * else if (day.getNameOfDay().equals("Monday")) { dayNum = 1; } else if
+	 * (day.getNameOfDay().equals("Tuesday")) { dayNum = 2; } else if
+	 * (day.getNameOfDay().equals("Wednesday")) { dayNum = 3; } else if
+	 * (day.getNameOfDay().equals("Thursday")) { dayNum = 4; } else if
+	 * (day.getNameOfDay().equals("Friday")) { dayNum = 5; } else if
+	 * (day.getNameOfDay().equals("Saturday")) { dayNum = 6; } return dayNum; }
+	 */
 
 	/**
 	 * QUALITY CHANGES Swap 1, Team 6
@@ -93,19 +89,34 @@ public class Config extends javax.swing.JFrame {
 	 * 
 	 * @param days
 	 */
+	/*
+	 * @SuppressWarnings("unchecked") public Config(ArrayList<Day> days) {
+	 * this.models = new DefaultListModel[7]; initDyn(); initComponents();
+	 * 
+	 * for (Day day : days) { ArrayList<String> jobs = day.getJobs();
+	 * this.daysChecked.get(day.getNameOfDay()).doClick(); for (String job :
+	 * jobs) { this.models[this.getDayNum(day)].addElement(job);
+	 * this.daysList.get(day.getNameOfDay()).setModel(
+	 * this.models[this.getDayNum(day)]); } } }
+	 */
+
+	/**
+	 * Used to edit days.
+	 * 
+	 * @param days
+	 */
 	@SuppressWarnings("unchecked")
-	public Config(ArrayList<Day> days) {
+	public Config(HashMap<Integer, ArrayList<String>> days) {
 		this.models = new DefaultListModel[7];
 		initDyn();
 		initComponents();
 
-		for (Day day : days) {
-			ArrayList<String> jobs = day.getJobs();
-			this.daysChecked.get(day.getNameOfDay()).doClick();
+		for (Integer day : days.keySet()) {
+			ArrayList<String> jobs = days.get(day);
+			this.daysChecked.get(day).doClick();
 			for (String job : jobs) {
-				this.models[this.getDayNum(day)].addElement(job);
-				this.daysList.get(day.getNameOfDay()).setModel(
-						this.models[this.getDayNum(day)]);
+				this.models[day].addElement(job);
+				this.daysList.get(day).setModel(this.models[day]);
 			}
 		}
 	}
@@ -131,7 +142,10 @@ public class Config extends javax.swing.JFrame {
 	@SuppressWarnings("rawtypes")
 	private void initDyn() {
 
-		for (String day : daysOfWeek) {
+		// for (String day : daysOfWeek) {
+		Calendar cal = Calendar.getInstance();
+		for (int day = cal.getMinimum(Calendar.DAY_OF_WEEK); day < cal
+				.getMaximum(Calendar.DAY_OF_WEEK); day++) {
 
 			this.daysAdd.put(day, new JButton());
 			this.daysDelete.put(day, new JButton());
@@ -159,7 +173,26 @@ public class Config extends javax.swing.JFrame {
 		setPreferredSize(new java.awt.Dimension(801, 87));
 		setResizable(false);
 
-		this.daysChecked.get("Sunday").setText("Sunday");
+		Calendar cal = Calendar.getInstance();
+		for (int i = cal.getMinimum(Calendar.DAY_OF_WEEK); i < cal
+				.getMaximum(Calendar.DAY_OF_WEEK); i++) {
+			cal.set(Calendar.DAY_OF_WEEK, i);
+			this.daysChecked.get(i).setText(
+					cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG,
+							Locale.getDefault()));
+			this.daysChecked.get(i).setName(
+					cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG,
+							Locale.getDefault()) + "Check");
+			this.daysChecked.get(i).addActionListener(
+					new java.awt.event.ActionListener() {
+						@Override
+						public void actionPerformed(
+								java.awt.event.ActionEvent evt) {
+							checkActionPeformed(evt);
+						}
+					});
+		}
+		/*this.daysChecked.get("Sunday").setText("Sunday");
 		this.daysChecked.get("Sunday").setName("sundayCheck"); // NOI18N
 		this.daysChecked.get("Sunday").addActionListener(
 				new java.awt.event.ActionListener() {
@@ -230,7 +263,7 @@ public class Config extends javax.swing.JFrame {
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
 						saturdayCheckActionPerformed(evt);
 					}
-				});
+				});*/
 
 		this.nextButton.setText("Next");
 		this.nextButton.addActionListener(new java.awt.event.ActionListener() {
@@ -405,21 +438,26 @@ public class Config extends javax.swing.JFrame {
 	 * 
 	 * sundayCheckActionPerformed through saturdayCheckActionPerformed
 	 * 
-	 * SMELL: Duplicate Code - the code is duplicated for every day of the week. The only difference between each function is the 
-	 * global variable used throughout the function. This can be refactored by fully utilizing the HashMaps for each component. This
-	 * would allow a single function to perform the functionality for each global variable in a for loop.
+	 * SMELL: Duplicate Code - the code is duplicated for every day of the week.
+	 * The only difference between each function is the global variable used
+	 * throughout the function. This can be refactored by fully utilizing the
+	 * HashMaps for each component. This would allow a single function to
+	 * perform the functionality for each global variable in a for loop.
 	 */
-	
+
 	/**
 	 * SWAP 1, TEAM 6
 	 * 
 	 * sundayCheckActionPerformed through saturdayCheckActionPerformed
 	 * 
-	 * SMELL: Shotgun Surgery - the code, due to the large duplication, any change made to these functions must be done for each day
-	 * of the week, even if the change is minor.  When following the refactoring idea above for the previous smell, this smell would also
-	 * be fixed, as merging them all into a single function would allow to only need to make each change once.
+	 * SMELL: Shotgun Surgery - the code, due to the large duplication, any
+	 * change made to these functions must be done for each day of the week,
+	 * even if the change is minor. When following the refactoring idea above
+	 * for the previous smell, this smell would also be fixed, as merging them
+	 * all into a single function would allow to only need to make each change
+	 * once.
 	 */
-	
+
 	/**
 	 * @param evt
 	 */
@@ -1606,54 +1644,50 @@ public class Config extends javax.swing.JFrame {
 	 * @param evt
 	 */
 	private void nextButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		ArrayList<Day> days = new ArrayList<Day>();
-		if (this.daysChecked.get("Sunday").isSelected()) {
-			ArrayList<Object> sun = new ArrayList<Object>();
-			List<Object> jobs = Arrays.asList(this.models[0].toArray());
-			sun.addAll(jobs);
-			days.add(new Day("Sunday", sun));
+		HashMap<Integer, ArrayList<String>> days = new HashMap<Integer, ArrayList<String>>();
+		for (Integer dayNum : this.daysChecked.keySet()) {
+			if (this.daysChecked.get(dayNum).isSelected()) {
+				ArrayList<String> jobs = new ArrayList<String>();
+				for (Object o : Arrays.asList(this.models[dayNum].toArray()))
+					jobs.add((String) o);
+				days.put(dayNum, (ArrayList<String>) jobs);
+			}
 		}
-		if (this.daysChecked.get("Monday").isSelected()) {
-			ArrayList<Object> mon = new ArrayList<Object>();
-			List<Object> jobs = Arrays.asList(this.models[1].toArray());
-			mon.addAll(jobs);
-			days.add(new Day("Monday", mon));
-		}
-		if (this.daysChecked.get("Tuesday").isSelected()) {
-			ArrayList<Object> tue = new ArrayList<Object>();
-			List<Object> jobs = Arrays.asList(this.models[2].toArray());
-			tue.addAll(jobs);
-			days.add(new Day("Tuesday", tue));
-		}
-		if (this.daysChecked.get("Wednesday").isSelected()) {
-			ArrayList<Object> wed = new ArrayList<Object>();
-			List<Object> jobs = Arrays.asList(this.models[3].toArray());
-			wed.addAll(jobs);
-			days.add(new Day("Wednesday", wed));
-		}
-		if (this.daysChecked.get("Thursday").isSelected()) {
-			ArrayList<Object> thu = new ArrayList<Object>();
-			List<Object> jobs = Arrays.asList(this.models[4].toArray());
-			thu.addAll(jobs);
-			days.add(new Day("Thursday", thu));
-		}
-		if (this.daysChecked.get("Friday").isSelected()) {
-			ArrayList<Object> fri = new ArrayList<Object>();
-			List<Object> jobs = Arrays.asList(this.models[5].toArray());
-			fri.addAll(jobs);
-			days.add(new Day("Friday", fri));
-		}
-		if (this.daysChecked.get("Saturday").isSelected()) {
-			ArrayList<Object> sat = new ArrayList<Object>();
-			List<Object> jobs = Arrays.asList(this.models[6].toArray());
-			sat.addAll(jobs);
-			days.add(new Day("Saturday", sat));
-		}
-		if (days.size() > 0) {
+		/*
+		 * if (this.daysChecked.get("Sunday").isSelected()) { ArrayList<Object>
+		 * sun = new ArrayList<Object>(); List<Object> jobs =
+		 * Arrays.asList(this.models[0].toArray()); sun.addAll(jobs);
+		 * days.add(new Day("Sunday", sun)); } if
+		 * (this.daysChecked.get("Monday").isSelected()) { ArrayList<Object> mon
+		 * = new ArrayList<Object>(); List<Object> jobs =
+		 * Arrays.asList(this.models[1].toArray()); mon.addAll(jobs);
+		 * days.add(new Day("Monday", mon)); } if
+		 * (this.daysChecked.get("Tuesday").isSelected()) { ArrayList<Object>
+		 * tue = new ArrayList<Object>(); List<Object> jobs =
+		 * Arrays.asList(this.models[2].toArray()); tue.addAll(jobs);
+		 * days.add(new Day("Tuesday", tue)); } if
+		 * (this.daysChecked.get("Wednesday").isSelected()) { ArrayList<Object>
+		 * wed = new ArrayList<Object>(); List<Object> jobs =
+		 * Arrays.asList(this.models[3].toArray()); wed.addAll(jobs);
+		 * days.add(new Day("Wednesday", wed)); } if
+		 * (this.daysChecked.get("Thursday").isSelected()) { ArrayList<Object>
+		 * thu = new ArrayList<Object>(); List<Object> jobs =
+		 * Arrays.asList(this.models[4].toArray()); thu.addAll(jobs);
+		 * days.add(new Day("Thursday", thu)); } if
+		 * (this.daysChecked.get("Friday").isSelected()) { ArrayList<Object> fri
+		 * = new ArrayList<Object>(); List<Object> jobs =
+		 * Arrays.asList(this.models[5].toArray()); fri.addAll(jobs);
+		 * days.add(new Day("Friday", fri)); } if
+		 * (this.daysChecked.get("Saturday").isSelected()) { ArrayList<Object>
+		 * sat = new ArrayList<Object>(); List<Object> jobs =
+		 * Arrays.asList(this.models[6].toArray()); sat.addAll(jobs);
+		 * days.add(new Day("Saturday", sat)); }
+		 */
+		if (days.keySet().size() > 0) {
 			boolean hasJobs = true;
 			int i = 0;
-			while (hasJobs && i < days.size()) {
-				if (days.get(i).getJobs().size() == 0) {
+			while (hasJobs && i < days.keySet().size()) {
+				if (days.get(i).size() == 0) {
 					hasJobs = false;
 				}
 				i++;

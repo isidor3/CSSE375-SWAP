@@ -4,6 +4,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
 
 import javax.swing.*;
 
@@ -18,7 +21,7 @@ import javax.swing.*;
  */
 public class WorkerSetup extends javax.swing.JFrame {
 
-	private ArrayList<Day> days;
+	private HashMap<Integer, ArrayList<String>> days;
 	private ArrayList<JPanel> workerTabs;
 
 	/**
@@ -41,9 +44,11 @@ public class WorkerSetup extends javax.swing.JFrame {
 			JTabbedPane daysPane = (JTabbedPane) this.workerTabs.get(c)
 					.getComponents()[0];
 			for (int i = 0; i < daysPane.getTabCount(); i++) {
-				for (int n = 0; n < workers.get(c).getDays().size(); n++) {
-					if (daysPane.getTitleAt(i).equals(
-							workers.get(c).getDays().get(n).getNameOfDay())) {
+				//for (int n = 0; n < workers.get(c).getDays().size(); n++) {
+				Calendar cal = Calendar.getInstance();
+				for (Integer n : workers.get(c).getDays()) {
+					cal.set(Calendar.DAY_OF_WEEK, n);
+					if (daysPane.getTitleAt(i).equals(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()))) {
 
 						JPanel day = (JPanel) daysPane.getComponent(i);
 						JScrollPane pane = (JScrollPane) day.getComponent(0);
@@ -51,8 +56,7 @@ public class WorkerSetup extends javax.swing.JFrame {
 						JPanel p = (JPanel) view.getComponent(0);
 
 						for (Component job : p.getComponents()) {
-							for (String workerJob : workers.get(c).getDays()
-									.get(n).getJobs()) {
+							for (String workerJob : workers.get(c).getJobsOnDay(n)) {
 								if (((JCheckBox) job).getText().equals(
 										workerJob)) {
 									((JCheckBox) job).setSelected(true);
@@ -85,15 +89,17 @@ public class WorkerSetup extends javax.swing.JFrame {
 	 */
 	private void addWorker() {
 		this.days = Main.getDays();
+		Calendar cal = Calendar.getInstance();
 		javax.swing.JTabbedPane tempWorkerDays = new javax.swing.JTabbedPane();
 		javax.swing.JTextField tempWorkerName = new javax.swing.JTextField();
 		javax.swing.JPanel tempWorkerTab = new javax.swing.JPanel();
 
 		// Makes a tab for each day and a check box for each job.
-		for (Day day : this.days) {
-			JCheckBox[] jobs = new JCheckBox[day.getJobs().size()];
-			for (int i = 0; i < day.getJobs().size(); i++) {
-				jobs[i] = new JCheckBox(day.getJobs().get(i));
+		//for (Day day : this.days) {
+		for (Integer day : this.days.keySet()) {
+			JCheckBox[] jobs = new JCheckBox[this.days.get(day).size()];
+			for (int i = 0; i < this.days.get(day).size(); i++) {
+				jobs[i] = new JCheckBox(this.days.get(day).get(i));
 			}
 
 			// Put Check Boxes in a scrollPane for dynamics
@@ -156,8 +162,8 @@ public class WorkerSetup extends javax.swing.JFrame {
 													179, Short.MAX_VALUE)
 											.addContainerGap()));
 
-			tempWorkerDays.addTab(day.getNameOfDay(), dayTab);
-
+			cal.set(Calendar.DAY_OF_WEEK, day);
+			tempWorkerDays.addTab(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()), dayTab);
 		}
 
 		// Add a section for the worker's name
@@ -379,7 +385,7 @@ public class WorkerSetup extends javax.swing.JFrame {
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		boolean allGood = true;
 		for (JPanel tab : this.workerTabs) {
-			ArrayList<Day> workerDays = new ArrayList<Day>();
+			HashMap<Integer, ArrayList<String>> workerDays = new HashMap<Integer, ArrayList<String>>();
 			JTextField nameArea = (JTextField) tab.getComponent(2);
 			if (nameArea.getText().isEmpty()) {
 				JOptionPane.showMessageDialog(this,
@@ -398,14 +404,14 @@ public class WorkerSetup extends javax.swing.JFrame {
 
 				JPanel p = (JPanel) view.getComponent(0);
 
-				ArrayList<Object> jobNames = new ArrayList<Object>();
+				ArrayList<String> jobNames = new ArrayList<String>();
 
 				for (Component job : p.getComponents()) {
 					if (((JCheckBox) job).isSelected()) {
 						jobNames.add(((JCheckBox) job).getText());
 					}
 				}
-				workerDays.add(new Day(daysPane.getTitleAt(i), jobNames));
+				workerDays.put(i, jobNames);
 			}
 			workers.add(new Worker(nameArea.getText(), workerDays));
 		}

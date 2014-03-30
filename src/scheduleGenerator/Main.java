@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * This class handles the interaction of one frame to another as well as
@@ -23,7 +24,8 @@ import java.util.ArrayList;
  */
 public class Main {
 
-	private static ArrayList<Day> days;
+	//private static ArrayList<Day> days;
+	private static HashMap<Integer, ArrayList<String>> days;
 	private static ArrayList<Worker> workers;
 	private static File path = new File("schedule_data.ser");
 
@@ -141,7 +143,8 @@ public class Main {
 	 * 
 	 * @return Returns the days.
 	 */
-	public static ArrayList<Day> getDays() {
+	//public static ArrayList<Day> getDays() {
+	public static HashMap<Integer, ArrayList<String>> getDays() {
 		return days;
 	}
 
@@ -150,7 +153,8 @@ public class Main {
 	 * 
 	 * @param d
 	 */
-	public static void setDays(ArrayList<Day> d) {
+	//public static void setDays(ArrayList<Day> d) {
+	public static void setDays(HashMap<Integer, ArrayList<String>> d) {
 		days = d;
 	}
 
@@ -193,7 +197,8 @@ public class Main {
 		if (path.exists()) {
 			FileInputStream recallConfig = new FileInputStream(path);
 			ObjectInputStream fileRecall = new ObjectInputStream(recallConfig);
-			days = (ArrayList<Day>) fileRecall.readObject();
+			//days = (ArrayList<Day>) fileRecall.readObject();
+			days = (HashMap<Integer, ArrayList<String>>) fileRecall.readObject();
 			workers = (ArrayList<Worker>) fileRecall.readObject();
 			schedule = (Schedule) fileRecall.readObject();
 			HTMLGenerator.setTables((String) fileRecall.readObject());

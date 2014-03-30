@@ -2,6 +2,7 @@ package scheduleGenerator;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Random;
@@ -39,7 +40,8 @@ import javax.swing.JOptionPane;
 public class NewMonthCalculator {
 
 	private GregorianCalendar cal;
-	private ArrayList<Day> days;
+	//private ArrayList<Day> days;
+	private HashMap<Integer, ArrayList<String>> daysMap;
 	private ArrayList<Worker> workers;
 	private HashMap<Integer, ArrayList<Worker>> workerIndices;
 	private boolean workerForEveryJob = true;
@@ -52,12 +54,23 @@ public class NewMonthCalculator {
 	private ArrayList<Worker> workersWorked;
 	private ArrayList<String> jobsInOrder;
 
-	public NewMonthCalculator(GregorianCalendar cal, ArrayList<Day> days,
+	/*public NewMonthCalculator(GregorianCalendar cal, ArrayList<Day> days,
 			ArrayList<Worker> workers,
 			HashMap<Integer, ArrayList<Worker>> workerIndices,
 			TreeMap<String, TreeMap<String, Worker>> schedule) {
 		this.cal = cal;
 		this.days = days;
+		this.workers = workers;
+		this.workerIndices = workerIndices;
+		this.schedule = schedule;
+	}*/
+	
+	public NewMonthCalculator(GregorianCalendar cal, HashMap<Integer, ArrayList<String>> days,
+			ArrayList<Worker> workers,
+			HashMap<Integer, ArrayList<Worker>> workerIndices,
+			TreeMap<String, TreeMap<String, Worker>> schedule) {
+		this.cal = cal;
+		this.daysMap = days;
 		this.workers = workers;
 		this.workerIndices = workerIndices;
 		this.schedule = schedule;
@@ -79,11 +92,13 @@ public class NewMonthCalculator {
 
 		while (currentMonth == this.cal.get(Calendar.MONTH)) {
 
-			for (Day day : this.days) {
+			//for (Day day : this.days) {
+			for (Integer day : this.daysMap.keySet()) {
 
-				if (this.cal.get(Calendar.DAY_OF_WEEK) == this.numForName(day
-						.getNameOfDay())) {
-					createDaySchedule(day);
+				/*if (this.cal.get(Calendar.DAY_OF_WEEK) == this.numForName(day
+						.getNameOfDay())) {*/
+				if (this.cal.get(Calendar.DAY_OF_WEEK) == day) { 
+					createDaySchedule(day, this.daysMap.get(day));
 					break;
 				}
 
@@ -92,16 +107,19 @@ public class NewMonthCalculator {
 		}
 	}
 
-	private void createDaySchedule(Day day) {
+	//private void createDaySchedule(Day day) {
+	private void createDaySchedule(Integer day, ArrayList<String> jobs) {
 
 		this.jobsWithWorker = new TreeMap<String, Worker>();
 		this.workersWorking = new ArrayList<String>();
 		this.workersFree = new ArrayList<Worker>();
 		this.workersWorked = new ArrayList<Worker>();
-		this.jobsInOrder = day.getJobs();
+		this.jobsInOrder = this.daysMap.get(day);
 
 		this.daysInMonth++;
 		this.numOfJobs.add(this.jobsInOrder.size());
+		
+		this.cal.set(Calendar.DAY_OF_WEEK, day);
 
 		for (Worker w : this.workers) {
 			this.workersFree.add(w);
@@ -118,7 +136,7 @@ public class NewMonthCalculator {
 			} else if (workersForJob.size() > 0) {
 				assignLeftoverJobs(job, workersForJob);
 			} else {
-				createEmptyJobMessage(job, day);
+				createEmptyJobMessage(job, this.cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
 				break;
 			}
 
@@ -127,12 +145,11 @@ public class NewMonthCalculator {
 		this.schedule.put(date, this.jobsWithWorker);
 	}
 
-	private void sortWorkers(Day day, String job,
+	private void sortWorkers(Integer day, String job,
 			ArrayList<Worker> workersForJob) {
-		for (Worker worker : this.workerIndices.get(this.numForName(day
-				.getNameOfDay()))) {
-			Day workerDay = worker.getDayWithName(day.getNameOfDay());
-			if (workerDay.getJobs().contains(job)
+		for (Worker worker : this.workerIndices.get(day)) {
+			//Day workerDay = worker.getDayWithName(day.getNameOfDay());
+			if (worker.getJobsOnDay(worker.getDayWithName(this.cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()))).contains(job)
 					&& !this.workersWorking.contains(worker.getName())) {
 				if (this.workersFree.size() == 0) {
 					this.workersFree = this.workersWorked;
@@ -177,12 +194,12 @@ public class NewMonthCalculator {
 		workerForJob.addWorkedJob(job);
 	}
 
-	private void createEmptyJobMessage(String job, Day day) {
-		this.jobsWithWorker.put(job, new Worker("Empty", new ArrayList<Day>()));
+	private void createEmptyJobMessage(String job, String day) {
+		this.jobsWithWorker.put(job, new Worker("Empty", new HashMap<Integer, ArrayList<String>>()));
 		JOptionPane.showMessageDialog(
 				new JFrame(),
 				"No workers are able to work as a(n) " + job + " on "
-						+ day.getNameOfDay());
+						+ day);
 		this.workerForEveryJob = false;
 	}
 
@@ -193,7 +210,7 @@ public class NewMonthCalculator {
 				+ String.format("%02d", this.cal.get(Calendar.DAY_OF_MONTH));
 	}
 
-	private int numForName(String nameOfDay) {
+	/*private int numForName(String nameOfDay) {
 		int dayNum = 0;
 		if (nameOfDay.equals("Sunday")) {
 			dayNum = 1;
@@ -211,6 +228,6 @@ public class NewMonthCalculator {
 			dayNum = 7;
 		}
 		return dayNum;
-	}
+	}*/
 
 }

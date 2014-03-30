@@ -2,7 +2,10 @@ package scheduleGenerator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * A worker contains days available to work with jobs.
@@ -13,7 +16,8 @@ import java.util.HashMap;
 public class Worker implements Serializable{
 
 	private String name;
-	private ArrayList<Day> days = new ArrayList<Day>();
+	//private ArrayList<Day> days = new ArrayList<Day>();
+	private HashMap<Integer, ArrayList<String>> daysMap = new HashMap<Integer, ArrayList<String>>(); 
 	private HashMap<String, Integer> timesWorked;
 	
 	/**
@@ -23,13 +27,32 @@ public class Worker implements Serializable{
 	 *
 	 * @param jobs
 	 */
-	public Worker(String name, ArrayList<Day> days)
+	/*public Worker(String name, ArrayList<Day> days)
 	{
 		this.name = name;
 		this.days = days;
 		this.timesWorked = new HashMap<String, Integer>();
 		for(Day day: days) {
 			for(String job:day.getJobs()) {
+				this.timesWorked.put(job, 0);
+			}
+		}
+	}*/
+	
+	/**
+	 * Builds a worker with available days.
+	 * @param name 
+	 * @param days 
+	 *
+	 * @param jobs
+	 */
+	public Worker(String name, HashMap<Integer, ArrayList<String>> days)
+	{
+		this.name = name;
+		this.daysMap = days;
+		this.timesWorked = new HashMap<String, Integer>();
+		for(Integer day : days.keySet()) {
+			for(String job : days.get(day)) {
 				this.timesWorked.put(job, 0);
 			}
 		}
@@ -72,9 +95,26 @@ public class Worker implements Serializable{
 	 * @param name
 	 * @return day with same name
 	 */
-	public Day getDayWithName(String name) {
+	/*public Day getDayWithName(String name) {
 		for(Day d: this.days) {
 			if(d.getNameOfDay().equals(name)) {
+				return d;
+			}
+		}
+		return null;
+	}*/
+	
+	/**
+	 * Returns the workers day based on name.
+	 *
+	 * @param name
+	 * @return day with same name
+	 */
+	public Integer getDayWithName(String name) {
+		for(Integer d: this.daysMap.keySet()) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.DAY_OF_WEEK, d);
+			if(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()).equals(name)) {
 				return d;
 			}
 		}
@@ -86,8 +126,17 @@ public class Worker implements Serializable{
 	 *
 	 * @return days
 	 */
-	public ArrayList<Day> getDays() {
+	/*public ArrayList<Day> getDays() {
 		return this.days;
+	}*/
+	
+	/**
+	 * Returns the worker's days.
+	 *
+	 * @return days
+	 */
+	public Set<Integer> getDays() {
+		return this.daysMap.keySet();
 	}
 	
 	/**
@@ -95,8 +144,21 @@ public class Worker implements Serializable{
 	 *
 	 * @param d
 	 */
-	public void addDay(Day d) {
+	/*public void addDay(Day d) {
 		this.days.add(d);
+	}*/
+	
+	/**
+	 * Adds a day to the worker.
+	 *
+	 * @param d
+	 */
+	public void addDay(Integer day, ArrayList<String> jobs) {
+		this.daysMap.put(day, jobs);
+	}
+	
+	public ArrayList<String> getJobsOnDay(Integer day) {
+		return this.daysMap.get(day);
 	}
 	
 }

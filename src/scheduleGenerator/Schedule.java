@@ -15,7 +15,8 @@ import java.util.TreeMap;
 public class Schedule extends Thread implements Serializable {
 
 	private ArrayList<Worker> workers;
-	private ArrayList<Day> days;
+	//private ArrayList<Day> days;
+	private HashMap<Integer, ArrayList<String>> daysMap;
 	private TreeMap<String, TreeMap<String, Worker>> schedule;
 	private GregorianCalendar cal;
 	private HashMap<Integer, ArrayList<Worker>> workerIndices;
@@ -26,9 +27,33 @@ public class Schedule extends Thread implements Serializable {
 	 * @param daySlots
 	 * @param wrks
 	 */
-	public Schedule(ArrayList<Day> daySlots, ArrayList<Worker> wrks) {
+	/*public Schedule(ArrayList<Day> daySlots, ArrayList<Worker> wrks) {
 		this.workers = wrks;
 		this.days = daySlots;
+		this.workerIndices = new HashMap<Integer, ArrayList<Worker>>();
+		for (int i = 1; i <= 7; i++) {
+			this.workerIndices.put(i, new ArrayList<Worker>());
+		}
+		this.generateIndices();
+
+		// Key is year/month/day format and item is a hashmap with key nameOfJob
+		// and item Worker
+		this.schedule = new TreeMap<String, TreeMap<String, Worker>>();
+
+		this.cal = new GregorianCalendar();
+
+		this.calculateNextMonth();
+	}*/
+	
+	/**
+	 * Used to construct an initial schedule, used if one does not exist.
+	 * 
+	 * @param daySlots
+	 * @param wrks
+	 */
+	public Schedule(HashMap<Integer, ArrayList<String>> daySlots, ArrayList<Worker> wrks) {
+		this.workers = wrks;
+		this.daysMap = daySlots;
 		this.workerIndices = new HashMap<Integer, ArrayList<Worker>>();
 		for (int i = 1; i <= 7; i++) {
 			this.workerIndices.put(i, new ArrayList<Worker>());
@@ -60,9 +85,9 @@ public class Schedule extends Thread implements Serializable {
 
 	private void generateIndices() {
 		for (int i = 0; i < this.workers.size(); i++) {
-			for (Day day : this.workers.get(i).getDays()) {
-				int numDay = this.numForName(day.getNameOfDay());
-				this.workerIndices.get(numDay).add(this.workers.get(i));
+			for (Integer day : this.workers.get(i).getDays()) {
+				//int numDay = this.numForName(day.getNameOfDay());
+				this.workerIndices.get(day).add(this.workers.get(i));
 			}
 		}
 	}
@@ -110,7 +135,7 @@ public class Schedule extends Thread implements Serializable {
 		resetMonthOfPreviousSchedule();
 
 		NewMonthCalculator calculator = new NewMonthCalculator(this.cal,
-				this.days, this.workers, this.workerIndices, this.schedule);
+				this.daysMap, this.workers, this.workerIndices, this.schedule);
 
 		int currentMonth = this.cal.get(Calendar.MONTH);
 		calculator.calculate(currentMonth);
@@ -146,7 +171,7 @@ public class Schedule extends Thread implements Serializable {
 	 * a cleaner use of this method and less of a need to for other switch
 	 * statements.
 	 */
-	private int numForName(String nameOfDay) {
+	/*private int numForName(String nameOfDay) {
 		int dayNum = 0;
 		if (nameOfDay.equals("Sunday")) {
 			dayNum = 1;
@@ -164,7 +189,7 @@ public class Schedule extends Thread implements Serializable {
 			dayNum = 7;
 		}
 		return dayNum;
-	}
+	}*/
 
 	// /**
 	// * Returns the month/day/year of next date with the name of day.
