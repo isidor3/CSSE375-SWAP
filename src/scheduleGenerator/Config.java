@@ -468,9 +468,14 @@ jPanel1Layout
 	 */
 	/*
 	 * SWAP 2, TEAM 7
+	 * REFACTORING FOR ENHANCEMENT FROM BAD SMELL
+	 *
 	 *  checkActionPerformed combines the (sunday-saturday)CheckActionPerformed
 	 *  methods, to reduce the duplication in the code, and preventing the shotgun
 	 *  surgery code smell.
+	 *  
+	 *  This follows Fowler's extract method refactoring method.
+	 *  This was largely successful, we got rid of a lot of duplicated code (>700 lines!)
 	 */
 	protected void checkActionPeformed(ActionEvent evt, final int day) {
 		if (this.daysChecked.get(day).isSelected()) {
