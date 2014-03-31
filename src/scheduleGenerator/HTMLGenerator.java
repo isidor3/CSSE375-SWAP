@@ -70,19 +70,27 @@ public class HTMLGenerator {
 	 * @param numJobs
 	 * 
 	 */
+	/*
+	 * SWAP 2, TEAM 7
+	 * REFACTORING FOR ENHANCEMENT FROM BAD SMELL
+	 * This doesn't follow any of Fowler's methods, because the variable was
+	 * assigned to a field anyway, we simply removed the variable and assigned
+	 * directly to the field instead.
+	 * 
+	 * This was successful and makes the method easier to read and understand
+	 */
 	public static void makeTable(int numDays, ArrayList<Integer> numJobs) {
-		String tempTable = "\"<table width='100%' height='44%' border='1'><tr>";
+		table += "\"<table width='100%' height='44%' border='1'><tr>";
 		for (int c = 0; c < numDays; c++) {
-			tempTable += "<td class='day'>" + "<table width='100%' border='1'>"
+			table += "<td class='day'>" + "<table width='100%' border='1'>"
 					+ "<tr>" + "<th id='" + c + ",0' scope='col'></th></tr>";
 			for (int r = 1; r <= numJobs.get(c); r++) {
-				tempTable += "<tr><td id='" + c + "," + r
+				table += "<tr><td id='" + c + "," + r
 						+ "' class='day'></td></tr>";
 			}
-			tempTable += "</table></td>";
+			table += "</table></td>";
 		}
-		tempTable += "</tr></table>\",";
-		table += tempTable;
+		table += "</tr></table>\",";
 	}
 
 	/**
