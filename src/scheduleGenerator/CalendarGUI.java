@@ -532,20 +532,40 @@ public class CalendarGUI extends javax.swing.JFrame {
 		pack();
 	}
 
+	// SWAP 2, TEAM 7
+	// BUG FIXING
+	/*
+	 * The method below was modified to prevent access from the Edit Workers
+	 * menu to the Edit Days menu.
+	 */
+
 	/**
 	 * @param evt
 	 */
 	private void editWorkersActionPerformed(java.awt.event.ActionEvent evt) {
-		Main.wSet = new WorkerSetup(this.schedule.getWorkers());
+		Main.wSet = new WorkerSetup(this.schedule.getWorkers(), false);
 		Main.toggleWorkerSetup();
 		Main.toggleCalendar();
 	}
+
+	// SWAP 2, TEAM 7
+	// BUG FIXING
+	/*
+	 * At the beginning of Swap 2, whenever the Edit Days menu was accessed, the
+	 * only way to get back to the schedule was go through the configuration of
+	 * Workers. However, when the worker configuration menu was accessed from
+	 * the Edit Days menu, all previously input workers were deleted. Now, the
+	 * Edit Days menu option follows a slightly different flow from the Days
+	 * Configuration, leaving the Workers untouched. The revisions made to
+	 * resolve this bug could also be extended to add a way to either accept or
+	 * reject changes made to Days.
+	 */
 
 	/**
 	 * @param evt
 	 */
 	private void editDaysActionPerformed(java.awt.event.ActionEvent evt) {
-		Main.config = new Config(Main.getDays());
+		Main.config = new Config(Main.getDays(), false);
 		Main.toggleConfig();
 		Main.toggleCalendar();
 	}

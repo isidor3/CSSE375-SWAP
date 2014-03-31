@@ -24,15 +24,23 @@ public class WorkerSetup extends javax.swing.JFrame {
 	private HashMap<Integer, ArrayList<String>> days;
 	private ArrayList<JPanel> workerTabs;
 
+	// SWAP 2, TEAM 7
+	// BUG FIXING
+	/*
+	 * A boolean parameter was added to this constructor to differentiate
+	 * between the mode where editing workers should and should not allow access
+	 * to editing days.
+	 */
+
 	/**
 	 * Allows for editing of already made workers.
 	 * 
 	 * @param workers
 	 */
-	public WorkerSetup(ArrayList<Worker> workers) {
+	public WorkerSetup(ArrayList<Worker> workers, boolean initialSetup) {
 		this.setPreferredSize(new Dimension(425, 450));
 		this.workerTabs = new ArrayList<JPanel>();
-		initComponents();
+		initComponents(initialSetup);
 		for (int c = 0; c < workers.size(); c++) {
 			this.addWorker();
 		}
@@ -44,11 +52,13 @@ public class WorkerSetup extends javax.swing.JFrame {
 			JTabbedPane daysPane = (JTabbedPane) this.workerTabs.get(c)
 					.getComponents()[0];
 			for (int i = 0; i < daysPane.getTabCount(); i++) {
-				//for (int n = 0; n < workers.get(c).getDays().size(); n++) {
+				// for (int n = 0; n < workers.get(c).getDays().size(); n++) {
 				Calendar cal = Calendar.getInstance();
 				for (Integer n : workers.get(c).getDays()) {
 					cal.set(Calendar.DAY_OF_WEEK, n);
-					if (daysPane.getTitleAt(i).equals(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()))) {
+					if (daysPane.getTitleAt(i).equals(
+							cal.getDisplayName(Calendar.DAY_OF_WEEK,
+									Calendar.LONG, Locale.getDefault()))) {
 
 						JPanel day = (JPanel) daysPane.getComponent(i);
 						JScrollPane pane = (JScrollPane) day.getComponent(0);
@@ -56,7 +66,8 @@ public class WorkerSetup extends javax.swing.JFrame {
 						JPanel p = (JPanel) view.getComponent(0);
 
 						for (Component job : p.getComponents()) {
-							for (String workerJob : workers.get(c).getJobsOnDay(n)) {
+							for (String workerJob : workers.get(c)
+									.getJobsOnDay(n)) {
 								if (((JCheckBox) job).getText().equals(
 										workerJob)) {
 									((JCheckBox) job).setSelected(true);
@@ -70,17 +81,21 @@ public class WorkerSetup extends javax.swing.JFrame {
 
 	}
 
+	// SWAP 2, TEAM 87
+	// BUG FIXING
+	/* A default value of true was given to initial Setup. */
+
 	/**
 	 * Creates new form WorkerSetup
 	 */
 	public WorkerSetup() {
 		this.setPreferredSize(new Dimension(425, 450));
 		this.workerTabs = new ArrayList<JPanel>();
-		initComponents();
+		initComponents(true);
 		addWorker();
 	}
 
-	/**
+	/*
 	 * SWAP 1, TEAM 6
 	 * 
 	 * SMELL: long method - this method is crazy long with a lot of hard to
@@ -95,7 +110,15 @@ public class WorkerSetup extends javax.swing.JFrame {
 		javax.swing.JPanel tempWorkerTab = new javax.swing.JPanel();
 
 		// Makes a tab for each day and a check box for each job.
-		//for (Day day : this.days) {
+
+		// SWAP 2, TEAM 7
+		// REFACTORING FOR ENHANCEMENT FROM BAD SMELL
+		/*
+		 * the below loop was modified to eliminate the Data Class Day (which
+		 * also contains Primitive Obsession).
+		 */
+
+		// for (Day day : this.days) {
 		for (Integer day : this.days.keySet()) {
 			JCheckBox[] jobs = new JCheckBox[this.days.get(day).size()];
 			for (int i = 0; i < this.days.get(day).size(); i++) {
@@ -163,7 +186,8 @@ public class WorkerSetup extends javax.swing.JFrame {
 											.addContainerGap()));
 
 			cal.set(Calendar.DAY_OF_WEEK, day);
-			tempWorkerDays.addTab(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()), dayTab);
+			tempWorkerDays.addTab(cal.getDisplayName(Calendar.DAY_OF_WEEK,
+					Calendar.LONG, Locale.getDefault()), dayTab);
 		}
 
 		// Add a section for the worker's name
@@ -249,16 +273,31 @@ public class WorkerSetup extends javax.swing.JFrame {
 		}
 	}
 
+	// SWAP 2, TEAM 7
+	// BUG FIXING
+	/*
+	 * A boolean parameter was added to this method to tell whether a new
+	 * configuration is to be created or a current one modified.
+	 */
+
 	/**
 	 * This method is called from within the constructor to initialize the form.
 	 */
-	private void initComponents() {
+	private void initComponents(boolean initialSetup) {
 
 		this.workerTabPanel = new javax.swing.JTabbedPane();
 		this.addButton = new javax.swing.JButton();
 		this.removeButton = new javax.swing.JButton();
 		this.nextButton = new javax.swing.JButton();
 		this.backButton = new javax.swing.JButton();
+
+		// SWAP 2, TEAM 7
+		// BUG FIXING
+		/*
+		 * The okButton was added for the alternate flow of editing workers
+		 * instead of initial setup of workers.
+		 */
+		this.okButton = new javax.swing.JButton();
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Worker Setup");
@@ -284,7 +323,11 @@ public class WorkerSetup extends javax.swing.JFrame {
 		this.nextButton.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				nextButtonActionPerformed(evt);
+
+				// SWAP 2, TEAM 7
+				// BUG FIXES
+				/* This method was renamed during the Edit Days bug fixing. */
+				nextOrOkButtonActionPerformed(evt);
 			}
 		});
 
@@ -296,29 +339,70 @@ public class WorkerSetup extends javax.swing.JFrame {
 			}
 		});
 
+		// SWAP 2, TEAM 7
+		// BUG FIXING
+		/*
+		 * The okButton was added for the alternate flow of editing workers
+		 * instead of initial setup of workers.
+		 */
+
+		this.okButton.setText("Ok");
+		this.okButton.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				nextOrOkButtonActionPerformed(evt);
+			}
+		});
+
 		JScrollPane outside = new JScrollPane();
 		outside.setViewportView(this.workerTabPanel);
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(
 				getContentPane());
 		getContentPane().setLayout(layout);
+
+		// SWAP 2, TEAM 7
+		// BUG FIXING
+		/*
+		 * The changes made below were made to remove duplication and make the
+		 * GUI easier to understand so the okButton could be added for fixing
+		 * the Edit Days bug. These changes could be extended to include options
+		 * for accepting or rejecting any changes made.
+		 */
+
+		javax.swing.GroupLayout.SequentialGroup initOrEditHorizGroup = layout
+				.createSequentialGroup().addGap(106, 106, 106);
+		if (initialSetup) {
+			initOrEditHorizGroup.addComponent(this.backButton)
+					.addGap(18, 18, 18).addComponent(this.nextButton);
+		} else {
+			initOrEditHorizGroup.addComponent(this.okButton).addGap(18, 18, 18);
+		}
+		initOrEditHorizGroup.addContainerGap(
+				javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+
+		javax.swing.GroupLayout.ParallelGroup initOrEditVertGroup = layout
+				.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE);
+		if (initialSetup) {
+			initOrEditVertGroup.addComponent(this.nextButton).addComponent(
+					this.backButton);
+		} else {
+			initOrEditVertGroup.addComponent(this.okButton);
+		}
+
 		layout.setHorizontalGroup(layout
 				.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(
-						layout.createSequentialGroup()
-								.addGap(106, 106, 106)
-								.addComponent(this.backButton,
-										javax.swing.GroupLayout.PREFERRED_SIZE,
-										65,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addGap(18, 18, 18)
-								.addComponent(this.nextButton,
-										javax.swing.GroupLayout.PREFERRED_SIZE,
-										65,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addContainerGap(
-										javax.swing.GroupLayout.DEFAULT_SIZE,
-										Short.MAX_VALUE))
+				.addGroup(initOrEditHorizGroup)
+				/*
+				 * layout.createSequentialGroup() .addGap(106, 106, 106)
+				 * .addComponent(this.backButton,
+				 * javax.swing.GroupLayout.PREFERRED_SIZE, 65,
+				 * javax.swing.GroupLayout.PREFERRED_SIZE) .addGap(18, 18, 18)
+				 * .addComponent(this.nextButton,
+				 * javax.swing.GroupLayout.PREFERRED_SIZE, 65,
+				 * javax.swing.GroupLayout.PREFERRED_SIZE) .addContainerGap(
+				 * javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+				 */
 				.addGroup(
 						layout.createSequentialGroup()
 								.addContainerGap()
@@ -362,26 +446,33 @@ public class WorkerSetup extends javax.swing.JFrame {
 												.addComponent(this.addButton)
 												.addComponent(this.removeButton))
 								.addGap(18, 18, 18)
-								.addGroup(
-										layout.createParallelGroup(
-												javax.swing.GroupLayout.Alignment.BASELINE)
-												.addComponent(this.nextButton)
-												.addComponent(this.backButton))
+								.addGroup(initOrEditVertGroup)
 								.addGap(0, 8, Short.MAX_VALUE)));
 
 		pack();
 	}
 
-	/**
+	/*
 	 * SWAP 1, TEAM 6
 	 * 
 	 * SMELL: Feature Envy - in the if(allGood) section, a lot of Main's
 	 * functions are called. Refactoring this would enable easier changes made
 	 * directly on Main
-	 * 
+	 */
+
+	// SWAP 2, TEAM 7
+	// BUG FIXING
+	/*
+	 * The following method was renamed to account for the different buttons
+	 * used for edit workers and initialize workers. This distinction is drawn
+	 * to solve the Edit Days bug, which caused the deletion of all workers when
+	 * accessed at the beginning of this swap.
+	 */
+
+	/**
 	 * @param evt
 	 */
-	private void nextButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	private void nextOrOkButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		boolean allGood = true;
 		for (JPanel tab : this.workerTabs) {
@@ -453,5 +544,14 @@ public class WorkerSetup extends javax.swing.JFrame {
 	private javax.swing.JButton backButton;
 	private javax.swing.JButton nextButton;
 	private javax.swing.JButton removeButton;
+
+	// SWAP 2, TEAM 7
+	// BUG FIXING
+	/*
+	 * The okButton was added for the alternate flow of editing workers instead
+	 * of initial setup of workers.
+	 */
+	private javax.swing.JButton okButton;
+
 	private javax.swing.JTabbedPane workerTabPanel;
 }
