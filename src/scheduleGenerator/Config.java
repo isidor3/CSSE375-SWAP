@@ -669,8 +669,8 @@ public class Config extends javax.swing.JFrame {
 			if (this.firstSelection) {
 				stretch();
 			}
-			this.models[0] = new DefaultListModel();
-			this.daysList.get(day).setModel(this.models[0]);
+			this.models[day] = new DefaultListModel();
+			this.daysList.get(day).setModel(this.models[day]);
 			this.daysScrollPane.get(day)
 					.setViewportView(this.daysList.get(day));
 
@@ -686,11 +686,11 @@ public class Config extends javax.swing.JFrame {
 								java.awt.event.ActionEvent evt) {
 							if (!Config.this.daysTextField.get(day).getText()
 									.isEmpty()) {
-								Config.this.models[0]
+								Config.this.models[day]
 										.addElement(Config.this.daysTextField
 												.get(day).getText());
 								Config.this.daysList.get(day).setModel(
-										Config.this.models[0]);
+										Config.this.models[day]);
 								Config.this.daysTextField.get(day).setText("");
 							}
 						}
@@ -706,7 +706,7 @@ public class Config extends javax.swing.JFrame {
 									.isSelectionEmpty()) {
 								int n = Config.this.daysList.get(day)
 										.getSelectedIndex();
-								Config.this.models[0].remove(n);
+								Config.this.models[day].remove(n);
 							}
 
 						}
