@@ -1477,12 +1477,13 @@ public class Config extends javax.swing.JFrame {
 		 */
 		if (days.keySet().size() > 0) {
 			boolean hasJobs = true;
-			int i = 0;
-			while (hasJobs && i < days.keySet().size()) {
+			/*int i = 0;
+			while (hasJobs && i < days.keySet().size()) {*/
+			for (Integer i : days.keySet()) {
 				if (days.get(i).size() == 0) {
 					hasJobs = false;
 				}
-				i++;
+				//i++;
 			}
 			if (hasJobs) {
 				Main.setDays(days);

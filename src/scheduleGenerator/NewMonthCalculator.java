@@ -40,7 +40,7 @@ import javax.swing.JOptionPane;
 public class NewMonthCalculator {
 
 	private GregorianCalendar cal;
-	//private ArrayList<Day> days;
+	// private ArrayList<Day> days;
 	private HashMap<Integer, ArrayList<String>> daysMap;
 	private ArrayList<Worker> workers;
 	private HashMap<Integer, ArrayList<Worker>> workerIndices;
@@ -54,18 +54,24 @@ public class NewMonthCalculator {
 	private ArrayList<Worker> workersWorked;
 	private ArrayList<String> jobsInOrder;
 
-	/*public NewMonthCalculator(GregorianCalendar cal, ArrayList<Day> days,
-			ArrayList<Worker> workers,
-			HashMap<Integer, ArrayList<Worker>> workerIndices,
-			TreeMap<String, TreeMap<String, Worker>> schedule) {
-		this.cal = cal;
-		this.days = days;
-		this.workers = workers;
-		this.workerIndices = workerIndices;
-		this.schedule = schedule;
-	}*/
-	
-	public NewMonthCalculator(GregorianCalendar cal, HashMap<Integer, ArrayList<String>> days,
+	// SWAP 2, TEAM 7
+	// REFACTORING FOR ENHANCEMENT FROM BAD SMELL
+	/*
+	 * removed the commented constructor below, replacing it with the
+	 * constructor below it, to eliminate references to the Day class, which can
+	 * be removed.
+	 */
+
+	/*
+	 * public NewMonthCalculator(GregorianCalendar cal, ArrayList<Day> days,
+	 * ArrayList<Worker> workers, HashMap<Integer, ArrayList<Worker>>
+	 * workerIndices, TreeMap<String, TreeMap<String, Worker>> schedule) {
+	 * this.cal = cal; this.days = days; this.workers = workers;
+	 * this.workerIndices = workerIndices; this.schedule = schedule; }
+	 */
+
+	public NewMonthCalculator(GregorianCalendar cal,
+			HashMap<Integer, ArrayList<String>> days,
 			ArrayList<Worker> workers,
 			HashMap<Integer, ArrayList<Worker>> workerIndices,
 			TreeMap<String, TreeMap<String, Worker>> schedule) {
@@ -88,26 +94,32 @@ public class NewMonthCalculator {
 		return this.numOfJobs;
 	}
 
+	// SWAP 2, TEAM 7
+	// REFACTORING FOR ENHANCEMENT FROM BAD SMELL
+	/* removed all references to Day in this method so Day class can be removed. */
+
 	public void calculate(int currentMonth) {
-
 		while (currentMonth == this.cal.get(Calendar.MONTH)) {
-
-			//for (Day day : this.days) {
+			// for (Day day : this.days) {
 			for (Integer day : this.daysMap.keySet()) {
-
-				/*if (this.cal.get(Calendar.DAY_OF_WEEK) == this.numForName(day
-						.getNameOfDay())) {*/
-				if (this.cal.get(Calendar.DAY_OF_WEEK) == day) { 
+				/*
+				 * if (this.cal.get(Calendar.DAY_OF_WEEK) == this.numForName(day
+				 * .getNameOfDay())) {
+				 */
+				if (this.cal.get(Calendar.DAY_OF_WEEK) == day) {
 					createDaySchedule(day, this.daysMap.get(day));
 					break;
 				}
-
 			}
 			this.cal.add(Calendar.DATE, 1);
 		}
 	}
 
-	//private void createDaySchedule(Day day) {
+	// SWAP 2, TEAM 7
+	// REFACTORING FOR ENHANCEMENT FROM BAD SMELL
+	/* Renamed this method to modify input parameters for removal of Day class. */
+
+	// private void createDaySchedule(Day day) {
 	private void createDaySchedule(Integer day, ArrayList<String> jobs) {
 
 		this.jobsWithWorker = new TreeMap<String, Worker>();
@@ -118,7 +130,7 @@ public class NewMonthCalculator {
 
 		this.daysInMonth++;
 		this.numOfJobs.add(this.jobsInOrder.size());
-		
+
 		this.cal.set(Calendar.DAY_OF_WEEK, day);
 
 		for (Worker w : this.workers) {
@@ -129,14 +141,22 @@ public class NewMonthCalculator {
 
 			ArrayList<Worker> workersForJob = new ArrayList<Worker>();
 
-			sortWorkers(day, job, workersForJob);
+			// sortWorkers(day, job, workersForJob);
+			workersForJob = sortWorkers(day, job);
 
-			if (workersForJob.size() == 0) {
+			if (workersForJob.size() > 0) {
+				assignWorker(job, workersForJob);
+			} else if (workersForJob.size() == 0) {
 				assignFreeWorkers(job);
-			} else if (workersForJob.size() > 0) {
-				assignLeftoverJobs(job, workersForJob);
-			} else {
-				createEmptyJobMessage(job, this.cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
+			}
+			/*
+			 * if (workersForJob.size() == 0) { assignFreeWorkers(job); } else
+			 * if (workersForJob.size() > 0) { assignLeftoverJobs(job,
+			 * workersForJob); }
+			 */else {
+				createEmptyJobMessage(job, this.cal.getDisplayName(
+						Calendar.DAY_OF_WEEK, Calendar.LONG,
+						Locale.getDefault()));
 				break;
 			}
 
@@ -145,28 +165,64 @@ public class NewMonthCalculator {
 		this.schedule.put(date, this.jobsWithWorker);
 	}
 
-	private void sortWorkers(Integer day, String job,
-			ArrayList<Worker> workersForJob) {
-		for (Worker worker : this.workerIndices.get(day)) {
-			//Day workerDay = worker.getDayWithName(day.getNameOfDay());
-			if (worker.getJobsOnDay(worker.getDayWithName(this.cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()))).contains(job)
-					&& !this.workersWorking.contains(worker.getName())) {
-				if (this.workersFree.size() == 0) {
-					this.workersFree = this.workersWorked;
-					this.workersWorked = new ArrayList<Worker>();
-				}
+	// SWAP 2, TEAM 7
+	// BUG FIXES
+	/*
+	 * The methods below was modified to avoid double scheduling as much as
+	 * possible.
+	 */
 
-				if (this.workersFree.contains(worker)) {
-					workersForJob.add(worker);
-					this.workersFree.remove(worker);
-					this.workersWorked.add(worker);
-				} else {
-					workersForJob.add(this.workersFree.get(0));
-					this.workersWorked.add(this.workersFree.get(0));
-					this.workersFree.remove(0);
+	// private void sortWorkers(Integer day, String job,
+	// ArrayList<Worker> workersForJob) {
+	private ArrayList<Worker> sortWorkers(Integer day, String job) {
+		ArrayList<Worker> workersForJob = new ArrayList<Worker>();
+		for (Worker worker : this.workerIndices.get(day)) {
+			// Day workerDay = worker.getDayWithName(day.getNameOfDay());
+			if (worker.getJobsOnDay(day).contains(job)) {
+				workersForJob.add(worker);
+			}
+			if (!this.workersWorking.contains(worker.getName())) {
+				this.workersFree.add(worker);
+			}
+		}
+
+		/*
+		 * if (this.workersFree.size() == 0) { this.workersFree =
+		 * this.workersWorked; this.workersWorked = new ArrayList<Worker>(); }
+		 * 
+		 * if (this.workersFree.contains(worker)) { workersForJob.add(worker);
+		 * this.workersFree.remove(worker); this.workersWorked.add(worker); }
+		 * else { workersForJob.add(this.workersFree.get(0));
+		 * this.workersWorked.add(this.workersFree.get(0));
+		 * this.workersFree.remove(0); } } }
+		 */
+
+		return workersForJob;
+	}
+
+	private void assignWorker(String job, ArrayList<Worker> workersForJob) {
+		/*
+		 * if (this.workersFree.size() == 0) { this.workersFree =
+		 * this.workersWorked; this.workersWorked = new ArrayList<Worker>(); }
+		 */
+		Worker w = workersForJob.get(0);
+		for (Worker worker : workersForJob) {
+			if (this.workersFree.contains(worker)) {
+				if (worker.numWorkedForJob(job) < w.numWorkedForJob(job)) {
+					w = worker;
 				}
 			}
 		}
+		// this.jobsWithWorker.put(job, this.workersFree.get(0));
+		this.jobsWithWorker.put(job, w);
+		// this.workersWorking.add(this.workersFree.get(0).getName());
+		this.workersWorking.add(w.getName());
+		// this.workersFree.get(0).addWorkedJob(job);
+		this.workers.get(this.workers.indexOf(w)).addWorkedJob(job);
+		// this.workersWorked.add(this.workersFree.get(0));
+		this.workersWorked.add(w);
+		// this.workersFree.remove(0);
+		this.workersFree.remove(w);
 	}
 
 	private void assignFreeWorkers(String job) {
@@ -182,13 +238,14 @@ public class NewMonthCalculator {
 	}
 
 	/*
-	 *  SWAP 2 TEAM 7
-	 *  BUGFIX - Workers should now not be assigned two jobs in a day.
+	 * SWAP 2 TEAM 7 BUGFIX - Workers should now not be assigned two jobs in a
+	 * day when possible.
 	 */
 	private void assignLeftoverJobs(String job, ArrayList<Worker> workersForJob) {
 		Worker workerForJob = workersForJob.get(0);
 		for (Worker w : workersForJob) {
-			if(workersWorked.contains(w)) continue;
+			if (workersWorked.contains(w))
+				continue;
 			if (w.numWorkedForJob(job) < workerForJob.numWorkedForJob(job)) {
 				workerForJob = w;
 			}
@@ -199,11 +256,10 @@ public class NewMonthCalculator {
 	}
 
 	private void createEmptyJobMessage(String job, String day) {
-		this.jobsWithWorker.put(job, new Worker("Empty", new HashMap<Integer, ArrayList<String>>()));
-		JOptionPane.showMessageDialog(
-				new JFrame(),
-				"No workers are able to work as a(n) " + job + " on "
-						+ day);
+		this.jobsWithWorker.put(job, new Worker("Empty",
+				new HashMap<Integer, ArrayList<String>>()));
+		JOptionPane.showMessageDialog(new JFrame(),
+				"No workers are able to work as a(n) " + job + " on " + day);
 		this.workerForEveryJob = false;
 	}
 
@@ -214,24 +270,15 @@ public class NewMonthCalculator {
 				+ String.format("%02d", this.cal.get(Calendar.DAY_OF_MONTH));
 	}
 
-	/*private int numForName(String nameOfDay) {
-		int dayNum = 0;
-		if (nameOfDay.equals("Sunday")) {
-			dayNum = 1;
-		} else if (nameOfDay.equals("Monday")) {
-			dayNum = 2;
-		} else if (nameOfDay.equals("Tuesday")) {
-			dayNum = 3;
-		} else if (nameOfDay.equals("Wednesday")) {
-			dayNum = 4;
-		} else if (nameOfDay.equals("Thursday")) {
-			dayNum = 5;
-		} else if (nameOfDay.equals("Friday")) {
-			dayNum = 6;
-		} else if (nameOfDay.equals("Saturday")) {
-			dayNum = 7;
-		}
-		return dayNum;
-	}*/
+	/*
+	 * private int numForName(String nameOfDay) { int dayNum = 0; if
+	 * (nameOfDay.equals("Sunday")) { dayNum = 1; } else if
+	 * (nameOfDay.equals("Monday")) { dayNum = 2; } else if
+	 * (nameOfDay.equals("Tuesday")) { dayNum = 3; } else if
+	 * (nameOfDay.equals("Wednesday")) { dayNum = 4; } else if
+	 * (nameOfDay.equals("Thursday")) { dayNum = 5; } else if
+	 * (nameOfDay.equals("Friday")) { dayNum = 6; } else if
+	 * (nameOfDay.equals("Saturday")) { dayNum = 7; } return dayNum; }
+	 */
 
 }
