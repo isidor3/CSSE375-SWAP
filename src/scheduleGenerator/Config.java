@@ -628,7 +628,9 @@ jPanel1Layout
 																	javax.swing.GroupLayout.PREFERRED_SIZE))
 											.addContainerGap(25,
 													Short.MAX_VALUE)));
-			this.dayTabs.addTab(Calendar.getInstance().getDisplayName(day, Calendar.LONG, Locale.getDefault()), this.daysPanelTab.get(day));
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.DAY_OF_WEEK, day);
+			this.dayTabs.addTab(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()), this.daysPanelTab.get(day));
 		} else {
 			this.numSelected--;
 			stretch();
