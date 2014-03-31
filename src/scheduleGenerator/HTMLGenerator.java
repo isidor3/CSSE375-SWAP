@@ -64,7 +64,7 @@ public class HTMLGenerator {
 	 */
 	public static void makeTable(int numDays, ArrayList<Integer> numJobs) {
 		String tempTable = "\"<table width='100%' height='44%' border='1'><tr>";
-		for(int c = 0; c<numJobs.size(); c++) {
+		for(int c = 0; c<numDays; c++) {
 			tempTable += "<td class='day'>" +
 					"<table width='100%' border='1'>" +
 					"<tr>" +
@@ -140,9 +140,8 @@ public class HTMLGenerator {
 	static String table = "\nvar tables = ["; // This needs to remove the last
 											// comma and add a bracket.
 
-	//SWAP 1 TEAM 7 SMELL: Excessive use of literals
-	//This heavy use of literals should be moved to a file or two,
-	//to allow for changes after the program is compiled
+	//SMELL - SWAP 1 TEAM 04 - Excessive use of literals - these strings should be constants, and moved to a seperate file if possible
+	//If they were put into a file we could make a internationalizer that would load html for multiple languages.
 	/**
 	 * Used to put header.
 	 */

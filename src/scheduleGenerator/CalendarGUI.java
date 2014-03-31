@@ -1,57 +1,50 @@
 package scheduleGenerator;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Locale;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
+
+import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
 import javax.swing.table.DefaultTableModel;
-import darrylbu.util.MenuScroller;
 
 /**
  * 
  * @author schneimd
  */
-// SWAP 1, TEAM 7 SMELL Shotgun Surgery - Any time a change has to be made to the GUI, 
-// Many different changes need to be made throughout this file to properly implement them.
-// By fixing this we could implement a data driven GUI that would allow changes based on
-// user needs.
 public class CalendarGUI extends javax.swing.JFrame {
-
-	// SWAP 1, TEAM 07
-	// QUALITY CHANGES
-
-	// Used Remove Field to get rid of unused fields following removal of
-	// duplicated code.
-
-	// Original Code
-	/*
-	 * private Schedule schedule; private GregorianCalendar cal; private
-	 * TreeMap<String, TreeMap<String, Worker>> scheduleMap; private int
-	 * currentMonth; private String monthName;
-	 * 
-	 * @SuppressWarnings("unused") private int earliestYear, earliestMonth,
-	 * earliestDay; private int monthsAhead = 0; private int yearsAhead = 0;
-	 */
-
-	// New Code
+	//SMELL - SWAP 1 TEAM 04 - Divergent Change - Any major change to the functionality of the system will impact this class.
+	//Features that could be added if this fix are not really limited. We could add a system which displays more than one month at a time
+	//or we could display different panels for each job.
+	//SMELL - SWAP 1 TEAM 04 - Large Class - This class contains a lot of the logic for the gui in addition to GUI components. Seems like this could be extracted
+	//This is the same type of feature change as a above. The code would become overall a lot cleaner if this was fixed.
+	//SWAP 1 Team 4 Change 1
+	//The extremely duplicated code in the switch statements is pulled into a static constant list of names. This way it doesn't need to use the case statement anymore.
+	//and removes the switch statements.
+	//These duplicated code changes allow us to create an internationalizer that changes the names for the days of the week and months of the year.
+	//SMELL - SWAP 1 TEAM 04 - Switch Statements - switch statements were used to convert integers to strings. These have been fixed already. They let us change
+	//the names of things without changing multiple sections of code.
+	public static String[] months = {"January ","February ","March ","April ","May ","June ","July ","August ","September ","October ","November ","December "};
+	public static String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+	//END Change 1
 	private Schedule schedule;
 	private GregorianCalendar cal;
 	private TreeMap<String, TreeMap<String, Worker>> scheduleMap;
+	private int currentMonth;
+	private String monthName;
+	//SWAP 1 Team Change 2
+	//remove an unused variable.
 	private int earliestYear, earliestMonth;
-
-	// SWAP 1, TEAM 07
-	// Additional Feature
-
-	// This field was added to allow the CalendarGUI to be internationalized
-	// through generation based on Locale.
-	private Locale locale;
+	//END Change 2
+	private int monthsAhead = 0;
+	private int yearsAhead = 0;
 
 	/**
 	 * Creates new form Calendar
@@ -64,255 +57,209 @@ public class CalendarGUI extends javax.swing.JFrame {
 		String[] earliest = this.scheduleMap.firstKey().split("/");
 		this.earliestYear = Integer.parseInt(earliest[0]);
 		this.earliestMonth = Integer.parseInt(earliest[1]);
-		// this.earliestDay = Integer.parseInt(earliest[2]);
+		//SWAP 1 Team 4 Change 3
+		//End Change 3
 		this.cal = new GregorianCalendar();
-		this.locale = Locale.getDefault();
 		initComponents();
-
-		// SWAP 1, TEAM 07
-		// QUALITY CHANGES
-
-		// Replaced the original method with a new method that removes very
-		// similar code.
-
-		// Original Code
-		// this.fillTableForThisMonth();
-
-		// New Code
-		this.fillTableForMonth();
+		this.fillTableForThisMonth();
 	}
 
-	// SWAP 1, TEAM 07
-	// QUALITY CHANGES
+	private void setTitleMonth(int n, int year) {
+		//Swap 1 Team 4 Change 2
+		try {
+			// SWAP 2 TEAM 5
+			// FURTHER ELABORATION ON ADDITIONAL FEATURE
+			// As well as displaying the month at a uniform length, there is
+			// now also a checkbox to show the number of workers in the title.
+			// This was relatively simple to implement now that the important
+			// locations in the code that needed changing have been cleaned up.
+			// All it took was creating the checkbox, a listener to update the
+			// title, and the check in this function.
+			String text = months[n-1]+year;
+			if (this.showWorkersBox.isSelected()) {
+				text = text+", "+Main.getWorkers().size()+" Workers";
+			}
+			this.monthTitle.setText(text);
+			
+			
+			//SWAP 1 TEAM 4 ADDITIONAL FEATURE. FIXED LENGTH ON THE TEXT
+			for(int x = this.monthTitle.getText().length(); x < 25; x++)
+			{
+				this.monthTitle.setText(this.monthTitle.getText() + " ");
+			}
+		
+			this.monthName = months[n-1] + year;
+		}
+		catch (Exception e) {
+			//this should never happen, but as we didn't write the code, keep it from crashing on out of bounds error.
+			e.printStackTrace();
+		}
+		// Removed switch statement
+		// End Change 2
+	}
 
-	// Removed the duplicated code by using Replace Temp with Query in
-	// fillTableForMonth and then using Inline Method. Doing so eliminates the
-	// duplicated code while allowing the use of calendars other than Gregorian.
-
-	/*
-	 * private void setTitleMonth(int n, int year) { switch (n) { case (1):
-	 * this.monthTitle.setText("January " + year); this.monthName = "January " +
-	 * year; break; case (2): this.monthTitle.setText("February " + year);
-	 * this.monthName = "February " + year; break; case (3):
-	 * this.monthTitle.setText("March " + year); this.monthName = "March " +
-	 * year; break; case (4): this.monthTitle.setText("April " + year);
-	 * this.monthName = "April " + year; break; case (5):
-	 * this.monthTitle.setText("May " + year); this.monthName = "May " + year;
-	 * break; case (6): this.monthTitle.setText("June " + year); this.monthName
-	 * = "June " + year; break; case (7): this.monthTitle.setText("July " +
-	 * year); this.monthName = "July " + year; break; case (8):
-	 * this.monthTitle.setText("August " + year); this.monthName = "August " +
-	 * year; break; case (9): this.monthTitle.setText("September " + year);
-	 * this.monthName = "September " + year; break; case (10):
-	 * this.monthTitle.setText("October " + year); this.monthName = "October " +
-	 * year; break; case (11): this.monthTitle.setText("November " + year);
-	 * this.monthName = "November " + year; break; case (12):
-	 * this.monthTitle.setText("December " + year); this.monthName = "December "
-	 * + year; break;
-	 * 
-	 * } }
-	 */
-
-	// SWAP 1, TEAM 07
-	// QUALITY CHANGES
-
-	// Removed very similar code for fillTableForThisMonth, fillTableMonthAhead,
-	// and fillTableMonthBack by using Extract Method on
-	// generateCalendarForMonth and populateCalendar. Then used Replace Data
-	// Value with Object to make more use of this.cal.
-
-	// Original Code
 	/**
 	 * Displays the calendar for the current month based on the computers month.
 	 * 
-	 **/
-	/*
-	 * public void fillTableForThisMonth() { int currentYear = new
-	 * GregorianCalendar().get(Calendar.YEAR); this.currentMonth = new
-	 * GregorianCalendar().get(Calendar.MONTH) + 1;
-	 * this.setTitleMonth(this.currentMonth, currentYear); this.monthsAhead = 0;
-	 * this.yearsAhead = 0;
-	 * 
-	 * String keyStart = currentYear + "/" + String.format("%02d",
-	 * this.currentMonth); String currentKey = "";
-	 * 
-	 * // Generates calendar for current month if none exists while
-	 * (currentKey.equals("")) { Set<String> keys = this.scheduleMap.keySet();
-	 * for (String key : keys) { if (key.startsWith(keyStart)) { currentKey =
-	 * key; break; } } if (currentKey.equals("")) { Thread t = new
-	 * Thread(this.schedule); t.start(); // this.schedule.calculateNextMonth();
-	 * } }
-	 * 
-	 * DefaultTableModel table = new DefaultTableModel(new Object[0][0], new
-	 * String[0][0]);
-	 * 
-	 * this.cal = new GregorianCalendar(currentYear, this.currentMonth - 1, 1);
-	 * 
-	 * while (this.currentMonth == this.cal.get(Calendar.MONTH) + 1) { String
-	 * tempKey = this.cal.get(Calendar.YEAR) + "/" + String.format("%02d",
-	 * (this.cal.get(Calendar.MONTH) + 1)) + "/" + String.format("%02d",
-	 * this.cal.get(Calendar.DAY_OF_MONTH)); if
-	 * (this.scheduleMap.containsKey(tempKey)) {
-	 * 
-	 * int numOfJobs = this.scheduleMap.get(tempKey).size(); String[] colData =
-	 * new String[numOfJobs]; int i = 0;
-	 * 
-	 * for (String key : this.scheduleMap.get(tempKey).keySet()) { colData[i] =
-	 * key + ": " + this.scheduleMap.get(tempKey).get(key).getName(); i++; }
-	 * 
-	 * String numDate = (this.cal.get(Calendar.MONTH) + 1) + "/" +
-	 * String.format("%02d", this.cal.get(Calendar.DAY_OF_MONTH)) + "/" +
-	 * String.format("%02d", this.cal.get(Calendar.YEAR)); String colTitle =
-	 * this.getNameforNum(this.cal .get(Calendar.DAY_OF_WEEK)) + " (" + numDate
-	 * + ")"; table.addColumn(colTitle, colData);
-	 * 
-	 * } this.cal.add(Calendar.DATE, 1); }
-	 * 
-	 * HTMLGenerator.addMonth(this.monthName, table);
-	 * this.scheduleTable.setModel(table); }
 	 */
+	public void fillTableForThisMonth() {
+		int currentYear = new GregorianCalendar().get(Calendar.YEAR);
+		this.currentMonth = new GregorianCalendar().get(Calendar.MONTH) + 1;
+		this.setTitleMonth(this.currentMonth, currentYear);
+		this.monthsAhead = 0;
+		this.yearsAhead = 0;
+
+		//SWAP 1 TEAM 4 CHANGE: Removes Code into a Method
+		this.GenerateCalendar(currentYear, this.currentMonth);
+	}
 
 	/**
 	 * Displays the next month from current month.
 	 * 
 	 */
-	/*
-	 * public void fillTableMonthAhead() { int currentYear = new
-	 * GregorianCalendar().get(Calendar.YEAR); this.monthsAhead++; int showMonth
-	 * = new GregorianCalendar().get(Calendar.MONTH) + this.monthsAhead + 1;
-	 * this.yearsAhead = 0; while (showMonth > 12) { currentYear++; showMonth -=
-	 * 12; this.yearsAhead++; } this.setTitleMonth(showMonth, currentYear);
-	 * 
-	 * String keyStart = currentYear + "/" + String.format("%02d", showMonth);
-	 * String currentKey = "";
-	 * 
-	 * // Generates calendar for current month if none exists while
-	 * (currentKey.equals("")) { Set<String> keys = this.scheduleMap.keySet();
-	 * for (String key : keys) { if (key.startsWith(keyStart)) { currentKey =
-	 * key; break; } } if (currentKey.equals("")) { Thread t = new
-	 * Thread(this.schedule); t.start(); // this.schedule.calculateNextMonth();
-	 * } }
-	 * 
-	 * DefaultTableModel table = new DefaultTableModel(new Object[0][0], new
-	 * String[0][0]); this.cal = new GregorianCalendar(currentYear, showMonth -
-	 * 1, 1);
-	 * 
-	 * while (showMonth == this.cal.get(Calendar.MONTH) + 1) { String tempKey =
-	 * this.cal.get(Calendar.YEAR) + "/" + String.format("%02d",
-	 * (this.cal.get(Calendar.MONTH) + 1)) + "/" + String.format("%02d",
-	 * this.cal.get(Calendar.DAY_OF_MONTH)); if
-	 * (this.scheduleMap.containsKey(tempKey)) {
-	 * 
-	 * int numOfJobs = this.scheduleMap.get(tempKey).size(); String[] colData =
-	 * new String[numOfJobs]; int i = 0;
-	 * 
-	 * for (String key : this.scheduleMap.get(tempKey).keySet()) { colData[i] =
-	 * key + ": " + this.scheduleMap.get(tempKey).get(key).getName(); i++; }
-	 * 
-	 * String numDate = String.format("%02d", (this.cal.get(Calendar.MONTH) +
-	 * 1)) + "/" + String.format("%02d", this.cal.get(Calendar.DAY_OF_MONTH)) +
-	 * "/" + this.cal.get(Calendar.YEAR); String colTitle =
-	 * this.getNameforNum(this.cal .get(Calendar.DAY_OF_WEEK)) + " (" + numDate
-	 * + ")"; table.addColumn(colTitle, colData);
-	 * 
-	 * } this.cal.add(Calendar.DATE, 1); }
-	 * 
-	 * HTMLGenerator.addMonth(this.monthName, table);
-	 * this.scheduleTable.setModel(table); }
-	 */
+	public void fillTableMonthAhead() {
+		int currentYear = new GregorianCalendar().get(Calendar.YEAR);
+		this.monthsAhead++;
+		int showMonth = new GregorianCalendar().get(Calendar.MONTH)
+				+ this.monthsAhead + 1;
+		this.yearsAhead = 0;
+		while (showMonth > 12) {
+			currentYear++;
+			showMonth -= 12;
+			this.yearsAhead++;
+		}
+		this.setTitleMonth(showMonth, currentYear);
+		//SWAP 1 TEAM 4 CHANGE: Removes code into a method.
+		this.GenerateCalendar(currentYear, showMonth);
+	}
 
 	/**
 	 * Displays the last months from current month.
 	 * 
 	 */
-	/*
-	 * public void fillTableMonthBack() { int tempMonths = this.monthsAhead; if
-	 * ((new GregorianCalendar().get(Calendar.MONTH) + tempMonths) % 12 == 0) {
-	 * this.yearsAhead--; } int currentYear = new
-	 * GregorianCalendar().get(Calendar.YEAR) + this.yearsAhead;
-	 * this.monthsAhead--; int monthsToAdd = this.monthsAhead; while
-	 * (monthsToAdd < -11) { monthsToAdd += 12; currentYear--;
-	 * this.yearsAhead--; } int showMonth = new
-	 * GregorianCalendar().get(Calendar.MONTH) + monthsToAdd + 1;
-	 * 
-	 * while (showMonth > 12) { showMonth -= 12; }
-	 * 
-	 * if (currentYear < this.earliestYear || (currentYear == this.earliestYear
-	 * && showMonth < this.earliestMonth)) { this.monthsAhead++;
-	 * 
-	 * } else { this.setTitleMonth(showMonth, currentYear);
-	 * 
-	 * String keyStart = currentYear + "/" + String.format("%02d", showMonth);
-	 * String currentKey = "";
-	 * 
-	 * // Generates calendar for current month if none exists while
-	 * (currentKey.equals("")) { Set<String> keys = this.scheduleMap.keySet();
-	 * for (String key : keys) { if (key.startsWith(keyStart)) { currentKey =
-	 * key; break; } } if (currentKey.equals("")) { Thread t = new
-	 * Thread(this.schedule); t.start(); // this.schedule.calculateNextMonth();
-	 * } }
-	 * 
-	 * DefaultTableModel table = new DefaultTableModel(new Object[0][0], new
-	 * String[0][0]); this.cal = new GregorianCalendar(currentYear, showMonth -
-	 * 1, 1);
-	 * 
-	 * while (showMonth == this.cal.get(Calendar.MONTH) + 1) { String tempKey =
-	 * this.cal.get(Calendar.YEAR) + "/" + String.format("%02d",
-	 * (this.cal.get(Calendar.MONTH) + 1)) + "/" + String.format("%02d",
-	 * this.cal.get(Calendar.DAY_OF_MONTH)); if
-	 * (this.scheduleMap.containsKey(tempKey)) {
-	 * 
-	 * int numOfJobs = this.scheduleMap.get(tempKey).size(); String[] colData =
-	 * new String[numOfJobs]; int i = 0;
-	 * 
-	 * for (String key : this.scheduleMap.get(tempKey).keySet()) { colData[i] =
-	 * key + ": " + this.scheduleMap.get(tempKey).get(key) .getName(); i++; }
-	 * 
-	 * String numDate = String.format("%02d", (this.cal.get(Calendar.MONTH) +
-	 * 1)) + "/" + String.format("%02d", this.cal.get(Calendar.DAY_OF_MONTH)) +
-	 * "/" + this.cal.get(Calendar.YEAR); String colTitle =
-	 * this.getNameforNum(this.cal .get(Calendar.DAY_OF_WEEK)) + " (" + numDate
-	 * + ")"; table.addColumn(colTitle, colData);
-	 * 
-	 * } this.cal.add(Calendar.DATE, 1); }
-	 * 
-	 * this.scheduleTable.setModel(table);
-	 * HTMLGenerator.addMonth(this.monthName, table); }
-	 * 
-	 * }
-	 */
-
-	// SWAP 1, TEAM 07
-	// SMELL: Switch Statements - should probably look into libraries to see if
-	// this functionality is already implemented; could probably use Replace
-	// Type Code with Subclasses - not too sure how useful that would be here.
-
-	private String getNameforNum(int n) {
-		switch (n) {
-		case (1):
-			return "Sunday";
-		case (2):
-			return "Monday";
-		case (3):
-			return "Tuesday";
-		case (4):
-			return "Wednesday";
-		case (5):
-			return "Thursday";
-		case (6):
-			return "Friday";
-		case (7):
-			return "Saturday";
+	public void fillTableMonthBack() {
+		int tempMonths = this.monthsAhead;
+		if ((new GregorianCalendar().get(Calendar.MONTH) + tempMonths) % 12 == 0) {
+			this.yearsAhead--;
 		}
-		return null;
+		int currentYear = new GregorianCalendar().get(Calendar.YEAR)
+				+ this.yearsAhead;
+		this.monthsAhead--;
+		int monthsToAdd = this.monthsAhead;
+		while (monthsToAdd < -11) {
+			monthsToAdd += 12;
+			currentYear--;
+			this.yearsAhead--;
+		}
+		int showMonth = new GregorianCalendar().get(Calendar.MONTH)
+				+ monthsToAdd + 1;
+
+		while (showMonth > 12) {
+			showMonth -= 12;
+		}
+
+		if (currentYear < this.earliestYear
+				|| (currentYear == this.earliestYear && showMonth < this.earliestMonth)) {
+			this.monthsAhead++;
+
+		} else {
+			this.setTitleMonth(showMonth, currentYear);
+
+			//SWAP1 TEAM 4: Removes Code into a Method
+			this.GenerateCalendar(currentYear, showMonth);
+		}
+
+	}
+	
+	//SWAP 1 TEAM 4 CHANGE 4
+	//Refactors a longer statement into it's own method.
+	//SMELL - SWAP 1 TEAM 04 - Long Method - A lot of smaller statments in this code can be extracted into their own methods.
+	//Features this would allow are more clearly separated responsibilties, we could change the formatting of the strings without
+	//digging through the code to find every one.
+	// SWAP 2, TEAM 5
+	// REFACTORING FOR ENHANCEMENT FROM BAD SMELL
+	// Pulled out a large chunk of the function that all had to do with populating
+	// the table using Extract Method and made a call to a new function,
+	// populateScheduleTable (line 204).
+	// With this functionality more clearly separated it is easier to find in order
+	// to add features. For instance, a new parameter could be added to the function
+	// so that it takes in the name of a worker and only displays the days that particular
+	// worker is on the job.
+	public void GenerateCalendar(int currentYear, int showMonth)
+	{
+		String keyStart = currentYear + "/" + String.format("%02d", showMonth);
+		String currentKey = "";
+		// Generates calendar for current month if none exists
+		while (currentKey.equals("")) {
+			Set<String> keys = this.scheduleMap.keySet();
+			for (String key : keys) {
+				if (key.startsWith(keyStart)) {
+					currentKey = key;
+					break;
+				}
+			}
+			if (currentKey.equals("")) {
+				Thread t = new Thread(this.schedule);
+				t.start();
+				//this.schedule.calculateNextMonth();
+			}
+		}
+		
+		DefaultTableModel table = new DefaultTableModel(new Object[0][0],
+				new String[0][0]);
+		this.cal = new GregorianCalendar(currentYear, showMonth - 1, 1);
+
+		this.populateScheduleTable(showMonth, table);
+		
+		HTMLGenerator.addMonth(this.monthName, table);
+		this.scheduleTable.setModel(table);
+	}
+	
+	private void populateScheduleTable(int showMonth, DefaultTableModel table) {
+		while (this.cal.get(Calendar.MONTH) + 1 == showMonth) {
+			String tempKey = this.cal.get(Calendar.YEAR)
+					+ "/"
+					+ String.format("%02d", (this.cal.get(Calendar.MONTH) + 1))
+					+ "/"
+					+ String.format("%02d", this.cal.get(Calendar.DAY_OF_MONTH));
+			if (this.scheduleMap.containsKey(tempKey)) {
+				int numOfJobs = this.scheduleMap.get(tempKey).size();
+				String[] colData = new String[numOfJobs];
+				int i = 0;
+				for (String key : this.scheduleMap.get(tempKey).keySet()) {
+					colData[i] = key + ": "
+							+ this.scheduleMap.get(tempKey).get(key).getName();
+					i++;
+				}
+				String numDate = String.format("%02d",
+						(this.cal.get(Calendar.MONTH) + 1))
+						+ "/"
+						+ String.format("%02d",
+								this.cal.get(Calendar.DAY_OF_MONTH))
+						+ "/"
+						+ this.cal.get(Calendar.YEAR);
+				String colTitle = this.getNameforNum(this.cal
+						.get(Calendar.DAY_OF_WEEK)) + " (" + numDate + ")";
+				table.addColumn(colTitle, colData);
+			}
+			this.cal.add(Calendar.DATE, 1);
+		}
 	}
 
-	// SWAP 1, TEAM 07
-	// SMELL: Long Method - could be broken up into a method for setting up each
-	// component individually and one method for putting them all on the display
-	// using Extract Method. This would allow each individual GUI component to
-	// be reused elsewhere if necessary, as well as allowing selective creation
-	// of components if desired.
+	//END CHANGE 4
+	private String getNameforNum(int n) {
+		//SWAP 1 Team 4 Change 3
+		//This allows for custom names for the days of the week. Since it is loaded as a constant we could internationalize
+		//by creating an internationalizer that would load different names for the day of the week.
+		try {
+			return days[n-1];
+		}
+		catch(Exception e) {
+			return null;
+		}
+		//Removed switch statement
+		//End Change 3
+	}
 
 	private void initComponents() {
 
@@ -332,16 +279,14 @@ public class CalendarGUI extends javax.swing.JFrame {
 		this.generateMenu = new javax.swing.JMenu();
 		this.genHtml = new javax.swing.JMenuItem();
 		this.generateText = new javax.swing.JMenuItem();
-		this.preferencesMenu = new javax.swing.JMenu();
-		this.localeSubMenu = new javax.swing.JMenu();
-		// this.localesPane = new javax.swing.JScrollPane();
-		// this.localesPaneMenu = new javax.swing.JMenu();
+		this.showWorkersBox = new javax.swing.JCheckBox();
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Calendar");
 
-		this.monthTitle.setFont(new java.awt.Font("Tahoma", 1, 24));
+		this.monthTitle.setFont(new java.awt.Font("Monospaced", 1, 24));
 		this.monthTitle.setText("Month Name Here");
+		this.monthTitle.setPreferredSize(new Dimension(100, 25));
 
 		this.previousMonthButton.setText("<");
 		this.previousMonthButton
@@ -360,6 +305,15 @@ public class CalendarGUI extends javax.swing.JFrame {
 						nextMonthActionPerformed(evt);
 					}
 				});
+		
+		this.showWorkersBox.setText("Show number of workers");
+		this.showWorkersBox
+				.addActionListener(new java.awt.event.ActionListener() {
+					@Override
+					public void actionPerformed(java.awt.event.ActionEvent evt) {
+						showWorkersActionPerformed(evt);
+					}
+				});
 
 		this.scheduleTable.setModel(new javax.swing.table.DefaultTableModel(
 				new Object[][] { { null, null, null }, { null, null, null },
@@ -368,20 +322,19 @@ public class CalendarGUI extends javax.swing.JFrame {
 						"Thursday (10/26/12)" }));
 		this.scheduleTable.setColumnSelectionAllowed(true);
 		this.scheduleTable.getTableHeader().setReorderingAllowed(false);
-
-		for (Worker i : this.schedule.getWorkers()) {
+		
+		for(Worker i:this.schedule.getWorkers())
+		{
 			final Worker input = i;
-			this.popup.add(new JMenuItem(input.getName())).addActionListener(
-					new java.awt.event.ActionListener() {
-						@Override
-						public void actionPerformed(
-								java.awt.event.ActionEvent evt) {
-							editCell(input);
-						}
-					});
+			this.popup.add(new JMenuItem(input.getName())).addActionListener(new java.awt.event.ActionListener() {
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					editCell(input);
+				}
+			});
 		}
 		this.scheduleTable.setComponentPopupMenu(this.popup);
-
+		
 		this.jScrollPane1.setViewportView(this.scheduleTable);
 
 		this.fileMenu.setText("File");
@@ -408,7 +361,7 @@ public class CalendarGUI extends javax.swing.JFrame {
 				undoChangesActionPerformed(evt);
 			}
 		});
-		// this.fileMenu.add(this.undoChanges);
+		//this.fileMenu.add(this.undoChanges);
 
 		this.menuBar.add(this.fileMenu);
 
@@ -469,30 +422,6 @@ public class CalendarGUI extends javax.swing.JFrame {
 
 		this.menuBar.add(this.generateMenu);
 
-		// SWAP 1, TEAM 07
-		// Additional Feature
-
-		// The code below for adding a Preferences menu was added to support
-		// localization options.
-		this.preferencesMenu.setText("Preferences");
-		this.localeSubMenu.setText("Locale");
-
-		for (Locale l : Locale.getAvailableLocales()) {
-			JMenuItem item = new JMenuItem(l.getDisplayName(l));
-			item.setLocale(l);
-			item.addActionListener(new java.awt.event.ActionListener() {
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent evt) {
-					changeLocaleActionPerformed(evt);
-				}
-			});
-			this.localeSubMenu.add(item);
-		}
-		MenuScroller.setScrollerFor(this.localeSubMenu, 10);
-		this.preferencesMenu.add(this.localeSubMenu);
-
-		this.menuBar.add(this.preferencesMenu);
-
 		setJMenuBar(this.menuBar);
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(
@@ -513,6 +442,9 @@ public class CalendarGUI extends javax.swing.JFrame {
 								.addPreferredGap(
 										javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 								.addComponent(this.nextMonthButton)
+								.addPreferredGap(
+										javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+								.addComponent(this.showWorkersBox)
 								.addGap(0, 0, Short.MAX_VALUE)));
 		layout.setVerticalGroup(layout
 				.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -537,7 +469,12 @@ public class CalendarGUI extends javax.swing.JFrame {
 														this.nextMonthButton,
 														javax.swing.GroupLayout.PREFERRED_SIZE,
 														29,
-														javax.swing.GroupLayout.PREFERRED_SIZE))
+														javax.swing.GroupLayout.PREFERRED_SIZE)
+												.addComponent(
+														this.showWorkersBox,
+														javax.swing.GroupLayout.DEFAULT_SIZE,
+														javax.swing.GroupLayout.DEFAULT_SIZE,
+														Short.MAX_VALUE))
 								.addPreferredGap(
 										javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
 								.addComponent(this.jScrollPane1,
@@ -570,45 +507,22 @@ public class CalendarGUI extends javax.swing.JFrame {
 	 * @param evt
 	 */
 	private void previousMonthActionPerformed(java.awt.event.ActionEvent evt) {
-		// SWAP 1, TEAM 07
-		// QUALITY CHANGES
-
-		// Added logic here for determining whether or not the previous month
-		// can be displayed. Also used Replace Temp with Query to eliminate
-		// temporary variables and clear up what values are being used for
-		// method calls.
-
-		// Original Code
-		// this.fillTableMonthBack();
-
-		// New Code
-		this.cal.add(Calendar.MONTH, -1);
-		if (this.cal.get(Calendar.YEAR) < this.earliestYear
-				|| (this.cal.get(Calendar.YEAR) == this.earliestYear && this.cal
-						.get(Calendar.MONTH) + 1 < this.earliestMonth)) {
-			this.cal.add(Calendar.MONTH, 1);
-		} else {
-			this.fillTableForMonth();
-		}
+		this.fillTableMonthBack();
 	}
 
 	/**
 	 * @param evt
 	 */
 	private void nextMonthActionPerformed(java.awt.event.ActionEvent evt) {
-		// SWAP 1, TEAM 07
-		// QUALITY CHANGES
+		this.fillTableMonthAhead();
+	}
 
-		// Utilized this.cal for month and year changes, removed duplicate code
-		// from fillTableForCurrentMonth, fillTableMonthAhead, and
-		// fillTableMonthBack by creating fillTableForMonth.
-
-		// Original Code
-		// this.fillTableMonthAhead();
-
-		// New Code
-		this.cal.add(Calendar.MONTH, 1);
-		this.fillTableForMonth();
+	/**
+	 * @param evt
+	 */
+	private void showWorkersActionPerformed(java.awt.event.ActionEvent evt) {
+		this.fillTableMonthAhead();
+		this.fillTableMonthBack();
 	}
 
 	/**
@@ -617,9 +531,6 @@ public class CalendarGUI extends javax.swing.JFrame {
 	private void genHtmlActionPerformed(java.awt.event.ActionEvent evt) {
 		HTMLGenerator.writeHtml();
 	}
-
-	// SWAP 1, TEAM 07
-	// SMELL: Not sure, but I think the algorithm could be improved...
 
 	/**
 	 * @param evt
@@ -652,14 +563,14 @@ public class CalendarGUI extends javax.swing.JFrame {
 		for (String i : dutyRows) {
 			textOutput += "\n" + i;
 		}
-
+		
 		char[] letterOutput = textOutput.toCharArray();
 
 		try {
 			readout.createNewFile();
 
 			FileWriter outFile = new FileWriter(readout);
-			for (char i : letterOutput)
+			for(char i:letterOutput)
 				outFile.write(i);
 			outFile.close();
 		} catch (IOException exception) {
@@ -680,137 +591,23 @@ public class CalendarGUI extends javax.swing.JFrame {
 	private void undoChangesActionPerformed(java.awt.event.ActionEvent evt) {
 		// removed
 	}
-
-	// SWAP 1, TEAM 07
-	// Additional Feature
-
-	// The method below was added to allow for localization of the application,
-	// enabling schedules to be displayed in different languages. This would
-	// have been more difficult if the code had not been refactored to remove
-	// duplication first because not only would changes need to be made in
-	// multiple locations, but the switch statement that was removed would have
-	// had to have been expanded to account for each possible locale.
-	/**
-	 * @param evt
-	 */
-	private void changeLocaleActionPerformed(java.awt.event.ActionEvent evt) {
-		JMenuItem source = (JMenuItem) evt.getSource();
-		this.locale = source.getLocale();
-		this.monthTitle
-				.setText(this.cal.getDisplayName(Calendar.MONTH, Calendar.LONG,
-						this.locale) + " " + this.cal.get(Calendar.YEAR));
-		this.monthTitle.repaint();
-	}
-
-	private void editCell(Worker input) {
+	
+	private void editCell(Worker input)
+	{
 		int i = this.scheduleTable.getSelectedRow();
 		int j = this.scheduleTable.getSelectedColumn();
-		if (this.scheduleTable.getValueAt(i, j) != null) {
+		if(this.scheduleTable.getValueAt(i,j) != null)
+		{
 			System.out.println(this.scheduleTable.getColumnName(j));
-			String job = this.scheduleTable.getValueAt(i, j).toString()
-					.split(":")[0];
+			String job = this.scheduleTable.getValueAt(i,j).toString().split(":")[0];
 			String date = this.scheduleTable.getColumnName(j).split(" ")[1];
-			date = date.substring(1, date.length() - 1);
+			date = date.substring(1,date.length()-1);
 			String[] dateNums = date.split("/");
 			date = dateNums[2] + "/" + dateNums[0] + "/" + dateNums[1];
 			System.out.println(date);
-			this.scheduleMap.get(date).put(job, input);
-			this.scheduleTable.setValueAt(job + ": " + input.getName(), i, j);
+			this.scheduleMap.get(date).put(job,input);
+			this.scheduleTable.setValueAt(job + ": " + input.getName(),i,j);
 		}
-	}
-
-	// SWAP 1, TEAM 07
-	// QUALITY CHANGES
-
-	// Used Extract Method on code below to reduce the length of the
-	// fillTableForMonth method and to eliminate the comment explaining what
-	// this code is supposed to do.
-
-	private void generateCalendarForMonth(String keyStart) {
-		String currentKey = "";
-		while (currentKey.equals("")) {
-			Set<String> keys = this.scheduleMap.keySet();
-			for (String key : keys) {
-				if (key.startsWith(keyStart)) {
-					currentKey = key;
-					break;
-				}
-			}
-			if (currentKey.equals("")) {
-				Thread t = new Thread(this.schedule);
-				t.start();
-			}
-		}
-	}
-
-	// SWAP 1, TEAM 07
-	// QUALITY CHANGES
-
-	// Used Extract Method on code below to reduce Duplicated Code. Making this
-	// a method will allow, with slight modification, the population of any
-	// month of any year.
-
-	private DefaultTableModel populateCalendar(int month) {
-		DefaultTableModel table = new DefaultTableModel(new Object[0][0],
-				new String[0][0]);
-		this.cal.set(Calendar.DAY_OF_MONTH, 1);
-
-		while (month == this.cal.get(Calendar.MONTH)) {
-			String tempKey = this.cal.get(Calendar.YEAR)
-					+ "/"
-					+ String.format("%02d", (this.cal.get(Calendar.MONTH) + 1))
-					+ "/"
-					+ String.format("%02d", this.cal.get(Calendar.DAY_OF_MONTH));
-
-			if (this.scheduleMap.containsKey(tempKey)) {
-				int numOfJobs = this.scheduleMap.get(tempKey).size();
-				String[] colData = new String[numOfJobs];
-				int i = 0;
-
-				for (String key : this.scheduleMap.get(tempKey).keySet()) {
-					colData[i] = key + ": "
-							+ this.scheduleMap.get(tempKey).get(key).getName();
-					i++;
-				}
-
-				String numDate = String.format("%02d",
-						(this.cal.get(Calendar.MONTH) + 1))
-						+ "/"
-						+ String.format("%02d",
-								this.cal.get(Calendar.DAY_OF_MONTH))
-						+ "/"
-						+ String.format("%02d", this.cal.get(Calendar.YEAR));
-				String colTitle = this.getNameforNum(this.cal
-						.get(Calendar.DAY_OF_WEEK)) + " (" + numDate + ")";
-				table.addColumn(colTitle, colData);
-			}
-			this.cal.add(Calendar.DATE, 1);
-		}
-		this.cal.add(Calendar.MONTH, -1);
-		return table;
-	}
-
-	// SWAP 1, TEAM 07
-	// QUALITY CHANGES
-
-	// New Code
-	/**
-	 * Displays the calendar for the current month based on this.cal
-	 */
-	public void fillTableForMonth() {
-		this.monthTitle
-				.setText(this.cal.getDisplayName(Calendar.MONTH, Calendar.LONG,
-						this.locale) + " " + this.cal.get(Calendar.YEAR));
-
-		String keyStart = this.cal.get(Calendar.YEAR) + "/"
-				+ String.format("%02d", this.cal.get(Calendar.MONTH) + 1);
-
-		generateCalendarForMonth(keyStart);
-
-		DefaultTableModel table = populateCalendar(this.cal.get(Calendar.MONTH));
-
-		HTMLGenerator.addMonth(this.monthTitle.getText(), table);
-		this.scheduleTable.setModel(table);
 	}
 
 	private javax.swing.JMenuItem editDays;
@@ -829,12 +626,5 @@ public class CalendarGUI extends javax.swing.JFrame {
 	private javax.swing.JMenuItem saveChanges;
 	private javax.swing.JTable scheduleTable;
 	private javax.swing.JMenuItem undoChanges;
-
-	// SWAP 1, TEAM 07
-	// Additional Feature
-
-	// The two fields below were added to enable switching between Locales using
-	// a menu on the GUI.
-	private javax.swing.JMenu preferencesMenu;
-	private javax.swing.JMenu localeSubMenu;
+	private javax.swing.JCheckBox showWorkersBox;
 }

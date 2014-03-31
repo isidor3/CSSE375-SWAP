@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -32,11 +31,6 @@ public class Schedule extends Thread implements Serializable {
 	 * @param daySlots
 	 * @param wrks
 	 */
-	
-	//SWAP 1 TEAM 7 SMELL: Incomplete Library Class - The GregorianCalendar is used for
-	//some of the date functionality, but not universally, it would need to be extended
-	//to be able to satisfy all of our needs. If we did this, we could greatly simply
-	//the code by not passing around days of the week as strings.
 	public Schedule(ArrayList<Day> daySlots, ArrayList<Worker> wrks) {
 		this.workers = wrks;
 		this.days = daySlots;
@@ -69,8 +63,6 @@ public class Schedule extends Thread implements Serializable {
 		return this.workers;
 	}
 
-	// SWAP 1 TEAM 7 QUALITY CHANGES
-	// This is one of the methods extracted from calculateNextMonth
 	private void generateIndices() {
 		for (int i = 0; i < this.workers.size(); i++) {
 			for (Day day : this.workers.get(i).getDays()) {
@@ -80,10 +72,78 @@ public class Schedule extends Thread implements Serializable {
 		}
 	}
 
-	//SWAP 1 TEAM 7 QUALITY CHANGES
-	//Modify the existing schedule when one already exists
-	//Created using extract method
-	private synchronized void ammendSchedule() {
+	/**
+	 * Calculates another month of schedule based on workers availability.
+	 * 
+	 */
+	//SMELL - SWAP 1 TEAM 04: Long Method
+	//Features that could be added by extracting methods would be adding in the ability to make each worker work the job the same number
+	//of times, each person does it once before someone gets repeated.
+	//SWAP 1 Team 4 Change - Extract Method
+	private synchronized void calculateNextMonth() {
+
+		int initialSize = this.schedule.size();
+
+		// If the schedule has already been generated
+		if (this.schedule.size() > 0) {
+			scheduleExistsAlready();
+		}
+
+		// Used to see if month changes
+		int currentMonth = this.cal.get(Calendar.MONTH);
+
+		// SWAP 2, TEAM 5
+		// Major Bugfix
+		// The daysInMonth field was being calculated and used incorrectly, which made
+		// the program crash when you hit the next button at the worker menu.
+		// As such, things have been changed so that the program works.
+		int daysInMonth = 0;
+		ArrayList<Integer> numOfJobs = new ArrayList<Integer>();
+
+		// While still in the current month generate a schedule for each day
+		while (currentMonth == this.cal.get(Calendar.MONTH)) {
+
+			for (Day day : this.days) {
+				if (this.cal.get(Calendar.DAY_OF_WEEK) == this.numForName(day.getNameOfDay())) {
+
+					daysInMonth++;
+					String date = this.cal.get(Calendar.YEAR)
+							+ "/"
+							+ String.format("%02d",
+									(this.cal.get(Calendar.MONTH) + 1))
+							+ "/"
+							+ String.format("%02d",
+									this.cal.get(Calendar.DAY_OF_MONTH));
+					this.schedule.put(date, assignJobsForDay(day,numOfJobs));
+					break; // Breaks so it doesn't check the other days
+				}
+			}
+			this.cal.add(Calendar.DATE, 1);
+		}
+		HTMLGenerator.makeTable(daysInMonth, numOfJobs);
+		//SMELL - SWAP 1 TEAM 04 - Comments - The piece of codes below is unclear without this comment. method extraction may be waranted.
+		// Calls itself if there aren't many days generated
+		// For instance if the date it was created is the last day of the
+		// month it would only makes one day of schedule.
+		//SWAP 2, TEAM 5
+		// REFACTORING FOR ENHANCEMENT FROM BAD SMELL
+		// This was a quick fix by extracting the ambiguous code and giving its method a descriptive name.
+		// Extract method
+		// This change increases code clarity and would allow you to make it so that the next month is
+		// always displayed or tweak how many is too few days without having to go hunting to find the
+		// the proper place to make the change.
+		this.calculateNextIfTooFewDays(initialSize);
+
+		Main.dumpConfigFile();
+	}
+	
+	private synchronized void calculateNextIfTooFewDays(int initialSize) {
+		if (this.schedule.size() - initialSize < 2 && !this.workerForEveryJob) {
+			this.calculateNextMonth();
+		}
+	}
+	
+	private void scheduleExistsAlready() {
 		String lastDateMade = this.schedule.lastKey();
 		String[] parts = lastDateMade.split("/");
 		int year = Integer.parseInt(parts[0]);
@@ -95,128 +155,98 @@ public class Schedule extends Thread implements Serializable {
 			this.cal.add(Calendar.DATE, 1);
 		}
 	}
+	
+	//This method mutates numOfJobs
+	private TreeMap<String, Worker> assignJobsForDay(Day day, ArrayList<Integer> numOfJobs) {
+		TreeMap<String, Worker> jobsWithWorker = new TreeMap<String, Worker>();
+		ArrayList<String> workersWorking = new ArrayList<String>();
 
-	// SWAP 1, TEAM 07
-	// QUALITY CHANGES
+		ArrayList<String> jobsInOrder = day.getJobs();
 
-	// This method was extracted from calculateNextMonth serving the purpose of
-	// finding all available workers for a particular job.
-	private synchronized ArrayList<Worker> getWorkersForJob(String nameOfDay,
-			ArrayList<String> workersWorking, String job) {
+		// Used for html later
+
+		numOfJobs.add(jobsInOrder.size());
+
+		//
+
+		for (String job : jobsInOrder) {
+
+			ArrayList<Worker> workersForJob = getWorkersForJob(workersWorking,job,day);
+			Worker w = getWorkerForJob(job, workersForJob, day);
+			jobsWithWorker.put(job, w);
+			if (w.getName().equals("Empty")) {
+				break;
+			}
+			else {
+				workersWorking.add(w.getName());
+			}
+		}
+		return jobsWithWorker;
+	}
+	
+	private ArrayList<Worker> getWorkersForJob(ArrayList<String> workersWorking, String job, Day day) {
 		ArrayList<Worker> workersForJob = new ArrayList<Worker>();
 
-		for (Worker worker : this.workerIndices.get(this.numForName(nameOfDay))) {
-			Day workerDay = worker.getDayWithName(nameOfDay);
+		for (Worker worker : this.workerIndices.get(this
+				.numForName(day.getNameOfDay()))) {
+			Day workerDay = worker.getDayWithName(day
+					.getNameOfDay());
 			if (workerDay.getJobs().contains(job)
-					&& !workersWorking.contains(worker.getName())) {
+					&& !workersWorking.contains(worker
+							.getName())) {
 				workersForJob.add(worker);
+
 			}
 		}
 		return workersForJob;
 	}
-
-	// SWAP 1, TEAM 07
-	// QUALITY CHANGES
-
-	// This method was extracted from calculateNextMonth serving the purpose of
-	// selecting a worker to perform a particular job.
 	
-	//SWAP 1, TEAM 07
-	// Bonus Feature
-	
-	//After we split the mega-method into it's required parts, changing the code
-	//so that it only picks the worker who has worked on the selected job the least
-	//was a trivial task.
-	private synchronized Worker pickWorkerForJob(
-			ArrayList<Worker> workersAvailable, String job) {
-		Worker workerForJob = workersAvailable.get(0);
-		for (Worker w : workersAvailable) {
-			if (w.numWorkedForJob(job) < workerForJob.numWorkedForJob(job)) {
-				workerForJob = w;
-			}
-		}
-		return workerForJob;
-	}
-
-	private synchronized ArrayList<Integer> generateDays() {
-		
-		int currentMonth = this.cal.get(Calendar.MONTH);
-		ArrayList<Integer> numOfJobs = new ArrayList<Integer>();
-
-		while (currentMonth == this.cal.get(Calendar.MONTH)) {
-			for (Day day : this.days) {
-				if (this.cal.get(Calendar.DAY_OF_WEEK) == this.numForName(day
-						.getNameOfDay())) {
-					TreeMap<String, Worker> jobsWithWorker = new TreeMap<String, Worker>();
-					ArrayList<String> workersAlreadyWorking = new ArrayList<String>();
-					ArrayList<String> jobsInOrder = day.getJobs();
-
-					numOfJobs.add(jobsInOrder.size());
-
-					for (String job : jobsInOrder) {
-						ArrayList<Worker> workersForJob = getWorkersForJob(
-								day.getNameOfDay(), workersAlreadyWorking, job);
-						if (workersForJob.size() > 0) {
-							Worker workerForJob = pickWorkerForJob(
-									workersForJob, job);
-							jobsWithWorker.put(job, workerForJob);
-							workersAlreadyWorking.add(workerForJob.getName());
-							workerForJob.addWorkedJob(job);
-						} else {
-							jobsWithWorker.put(job, new Worker("Empty",
-									new ArrayList<Day>()));
-							JOptionPane
-									.showMessageDialog(
-											new JFrame(),
-											"No workers are able to work as a(n) "
-													+ job + " on "
-													+ day.getNameOfDay());
-							this.workerForEveryJob = false;
-							break;
-						}
-					}
-					String date = genDate();
-					this.schedule.put(date, jobsWithWorker);
-					break; // Breaks so it doesn't check the other days
+	/*BONUS FEATURE - Each worker gets only one assignment before being repeated.
+	 * We use the field in worker so that every time he gets assigned to a job he keeps track of how many
+	 * jobs he has worked of that type. We choose the worker that has worked this job the least.
+	 * 
+	 * This was fairly easy to do since we have already refactored the code to extract methods
+	 */
+	private Worker getWorkerForJob(String job, ArrayList<Worker> workersForJob, Day day) {
+		if (workersForJob.size() > 0) {
+			Worker workerForJob = getLeastUsedWorker(workersForJob, job);
+			for (Worker w : workersForJob) {
+				if (w.numWorkedForJob(job) < workerForJob
+						.numWorkedForJob(job)) {
+					workerForJob = w;
 				}
 			}
-			this.cal.add(Calendar.DATE, 1);
+			workerForJob.addWorkedJob(job);
+			return workerForJob;
+		} else {
+			JOptionPane
+					.showMessageDialog(
+							new JFrame(),
+							"No workers are able to work as a(n) "
+									+ job + " on "
+									+ day.getNameOfDay());
+			this.workerForEveryJob = false;
+			return new Worker("Empty",new ArrayList<Day>());
 		}
-		return numOfJobs;
 	}
-
-	/**
-	 * Calculates another month of schedule based on workers availability.
-	 * 
+	
+	/*
+	 * BONUS FEATURE - Function implementation
 	 */
-	private synchronized void calculateNextMonth() {
-
-		int initialSize = this.schedule.size();
-
-		// If the schedule has already been generated
-		if (this.schedule.size() > 0)
-			ammendSchedule();
-
-		ArrayList<Integer> numOfJobs = generateDays();
-		this.cal.add(Calendar.DATE, -1);
-		int daysInMonth = this.cal.get(Calendar.DATE);
-		
-		HTMLGenerator.makeTable(daysInMonth, numOfJobs);
-		// Calls itself if there aren't many days generated
-		// For instance if the date it was created is the last day of the
-		// month it would only makes one day of schedule.
-		if (this.schedule.size() - initialSize < 2 && !this.workerForEveryJob) {
-			this.calculateNextMonth();
+	private Worker getLeastUsedWorker(ArrayList<Worker> workers, String job) {
+		Worker leastUsed = workers.get(0);
+		ArrayList<Worker> dups = new ArrayList<Worker>();
+		for(Worker w: workers) {
+			if (w.numWorkedForJob(job) < leastUsed.numWorkedForJob(job)) {
+				leastUsed = w;
+				dups = new ArrayList<Worker>();
+				dups.add(w);
+			}
+			else if (w.numWorkedForJob(job) == leastUsed.numWorkedForJob(job)) {
+				dups.add(w);
+			}
 		}
-
-		Main.dumpConfigFile();
-	}
-
-	private synchronized String genDate() {
-		return this.cal.get(Calendar.YEAR) + "/"
-				+ String.format("%02d", (this.cal.get(Calendar.MONTH) + 1))
-				+ "/"
-				+ String.format("%02d", this.cal.get(Calendar.DAY_OF_MONTH));
+		return dups.get(new Random().nextInt(dups.size()));
 	}
 
 	private int numForName(String nameOfDay) {

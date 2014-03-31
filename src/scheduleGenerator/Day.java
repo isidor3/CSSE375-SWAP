@@ -9,15 +9,8 @@ import java.util.ArrayList;
  * @author schneimd.
  *         Created Oct 15, 2012.
  */
-//SWAP 1 TEAM 7 SMELL: Data class - Day really is only a container for a list of jobs
-//Removing this class would simplify many of the classes that use it and allow for 
 public class Day implements Serializable{
 	
-	//SWAP 1 TEAM 7 SMELL: Primitive Obsession - 
-	//There is probably a better way to represent a day of the week
-	//And a Job besides encoding it into a string.
-	//Changing this could allow for special days, such as holidays,
-	//Or allowing jobs to have more properties, such as how long they take to complete.
 	private String dayOfWeek;
 	private ArrayList<String> jobs = new ArrayList<String>();
 	
@@ -28,12 +21,20 @@ public class Day implements Serializable{
 	 *
 	 * @param jobs
 	 */
-	public Day(String name, ArrayList<Object> jobs)
+	//SMELL - SWAP 1 TEAM 04 - Speculative Generality - Jobs are strings everywhere, this means that having them be objects here
+	//is speculative generality. (They are treated as objects elsewhere when they are strings also).
+	//Fixing this would be very easy, and makes the code more understandable instead of casting everywhere. Jobs are always represented
+	//as strings currently so it makes no sense to pass them as objects.
+	// SWAP 2, TEAM 5
+	// REFACTORING FOR ENHANCEMENT FROM BAD SMELL
+	// This bad smell was removed quite simply, by just changing it from an Object to a String.
+	// There wasn't really a need for one of Fowler's methods, as we just had to change the Object to a String, because it's always a string.
+	// This could enable features such as allowing the user to change the display name for the day.
+	public Day(String name, ArrayList<String> jobs)
 	{
 		this.dayOfWeek = name;
-		for(Object i:jobs)
-		{
-			this.jobs.add((String)i);
+		for(String i:jobs) {
+			this.jobs.add(i);
 		}
 	}
 	
