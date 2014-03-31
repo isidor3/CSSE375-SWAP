@@ -181,10 +181,14 @@ public class NewMonthCalculator {
 		this.workersFree.remove(0);
 	}
 
+	/*
+	 *  SWAP 2 TEAM 7
+	 *  BUGFIX - Workers should now not be assigned two jobs in a day.
+	 */
 	private void assignLeftoverJobs(String job, ArrayList<Worker> workersForJob) {
-		Worker workerForJob = workersForJob.get(new Random()
-				.nextInt(workersForJob.size()));
+		Worker workerForJob = workersForJob.get(0);
 		for (Worker w : workersForJob) {
+			if(workersWorked.contains(w)) continue;
 			if (w.numWorkedForJob(job) < workerForJob.numWorkedForJob(job)) {
 				workerForJob = w;
 			}
