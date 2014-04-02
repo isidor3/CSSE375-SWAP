@@ -24,6 +24,7 @@ public class Schedule extends Thread implements Serializable {
 	private GregorianCalendar cal;
 	private HashMap<Integer, ArrayList<Worker>> workerIndices;
 	private boolean workerForEveryJob = true;
+	private boolean firstMonth = true;
 
 	/**
 	 * Used to construct an initial schedule, used if one does not exist.
@@ -132,15 +133,27 @@ public class Schedule extends Thread implements Serializable {
 		// This change increases code clarity and would allow you to make it so that the next month is
 		// always displayed or tweak how many is too few days without having to go hunting to find the
 		// the proper place to make the change.
+		// SWAP 3, TEAM 7
+		// ENHANCEMENT FROM REFACTORING
+		// Their refactoring did enable the feature of pre-calculating a month ahead of the month requested
+		// But it did not enable the software to display the extra month that was calculated. 
+		// Pre-calculating the next month works as expected, but it's not nearly as impressive as showing
+		// two months in the GUI.
+		// This enhancement adds value to the system by making it so the user doesn't have to wait as long
+		// to view the schedule, as the calculations are effectively done in batches now.
 		this.calculateNextIfTooFewDays(initialSize);
-
+		//Reset firstMonth
+		this.firstMonth = true;
 		Main.dumpConfigFile();
 	}
 	
 	private synchronized void calculateNextIfTooFewDays(int initialSize) {
-		if (this.schedule.size() - initialSize < 2 && !this.workerForEveryJob) {
+		//Generate a second month if needed.
+		if(this.firstMonth) { 
+			this.firstMonth = false;
+			System.out.println("Next Month Generated.");
 			this.calculateNextMonth();
-		}
+		} 
 	}
 	
 	private void scheduleExistsAlready() {
