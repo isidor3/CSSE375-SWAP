@@ -11,7 +11,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
 import javax.swing.table.DefaultTableModel;
 
@@ -67,7 +66,7 @@ public class CalendarGUI extends javax.swing.JFrame {
 	private void setTitleMonth(int n, int year) {
 		//Swap 1 Team 4 Change 2
 		try {
-			// SWAP 2 TEAM 5
+			// SWAP 2, TEAM 5
 			// FURTHER ELABORATION ON ADDITIONAL FEATURE
 			// As well as displaying the month at a uniform length, there is
 			// now also a checkbox to show the number of workers in the title.
