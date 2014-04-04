@@ -184,6 +184,13 @@ public class CalendarGUI extends javax.swing.JFrame {
 	// to add features. For instance, a new parameter could be added to the function
 	// so that it takes in the name of a worker and only displays the days that particular
 	// worker is on the job.
+	// SWAP 3, TEAM 7
+	// ENHANCEMENT FROM REFACTORING
+	// Here, we have code that will only show the jobs for the currently selected
+	// worker. It is exactly as useful as team 5 suggested, and just as easy to 
+	// implement. The refactoring was very helpful to enabling this feature.
+	// The refactoring adds value to the product by making complex schedules
+	// easy to view without permanently changing the schedule.
 	public void GenerateCalendar(int currentYear, int showMonth)
 	{
 		String keyStart = currentYear + "/" + String.format("%02d", showMonth);
@@ -226,8 +233,10 @@ public class CalendarGUI extends javax.swing.JFrame {
 				String[] colData = new String[numOfJobs];
 				int i = 0;
 				for (String key : this.scheduleMap.get(tempKey).keySet()) {
-					colData[i] = key + ": "
-							+ this.scheduleMap.get(tempKey).get(key).getName();
+					if(this.selectedWorker == this.scheduleMap.get(tempKey).get(key) || this.selectedWorker == null){
+						colData[i] = key + ": "
+								+ this.scheduleMap.get(tempKey).get(key).getName();
+					}
 					i++;
 				}
 				String numDate = String.format("%02d",
@@ -279,6 +288,9 @@ public class CalendarGUI extends javax.swing.JFrame {
 		this.genHtml = new javax.swing.JMenuItem();
 		this.generateText = new javax.swing.JMenuItem();
 		this.showWorkersBox = new javax.swing.JCheckBox();
+		this.workersMenu = new javax.swing.JMenu();
+		this.selectedWorker = null;
+		this.workers = new ArrayList<javax.swing.JMenuItem>();
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Calendar");
@@ -331,12 +343,26 @@ public class CalendarGUI extends javax.swing.JFrame {
 					editCell(input);
 				}
 			});
+			this.workers.add(new JMenuItem(input.getName()));
+			this.workers.get(this.workers.size()-1).addActionListener(new java.awt.event.ActionListener() {
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					selectWorker(input);
+				}
+			});
 		}
+		
+		for(JMenuItem i: this.workers) {
+			this.workersMenu.add(i);
+		}
+		
 		this.scheduleTable.setComponentPopupMenu(this.popup);
 		
 		this.jScrollPane1.setViewportView(this.scheduleTable);
 
 		this.fileMenu.setText("File");
+		
+		this.workersMenu.setText("Workers");
 
 		this.saveChanges.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
 				java.awt.event.KeyEvent.VK_S,
@@ -420,6 +446,7 @@ public class CalendarGUI extends javax.swing.JFrame {
 		this.generateMenu.add(this.generateText);
 
 		this.menuBar.add(this.generateMenu);
+		this.menuBar.add(this.workersMenu);
 
 		setJMenuBar(this.menuBar);
 
@@ -482,6 +509,12 @@ public class CalendarGUI extends javax.swing.JFrame {
 										javax.swing.GroupLayout.PREFERRED_SIZE)));
 
 		pack();
+	}
+	
+	private void selectWorker(Worker input) {
+		if(this.selectedWorker == input) this.selectedWorker = null;
+		else this.selectedWorker = input;
+		this.fillTableForThisMonth();
 	}
 
 	/**
@@ -616,6 +649,8 @@ public class CalendarGUI extends javax.swing.JFrame {
 	private javax.swing.JMenuItem genHtml;
 	private javax.swing.JMenu generateMenu;
 	private javax.swing.JMenuItem generateText;
+	private javax.swing.JMenu workersMenu;
+	private ArrayList<javax.swing.JMenuItem> workers;
 	private javax.swing.JScrollPane jScrollPane1;
 	private javax.swing.JMenuBar menuBar;
 	private javax.swing.JLabel monthTitle;
@@ -626,4 +661,5 @@ public class CalendarGUI extends javax.swing.JFrame {
 	private javax.swing.JTable scheduleTable;
 	private javax.swing.JMenuItem undoChanges;
 	private javax.swing.JCheckBox showWorkersBox;
+	private Worker selectedWorker;
 }
