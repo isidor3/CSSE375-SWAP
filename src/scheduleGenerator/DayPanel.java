@@ -1,11 +1,13 @@
 package scheduleGenerator;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -25,6 +27,11 @@ public class DayPanel extends JPanel{
 	private JLabel dayLabel;
 	private String day;
 	
+	// SWAP 3, TEAM 7
+	// ENHANCEMENT FROM REFACTORING
+	// Added a button to each DayPanel to allow for changing the background color.
+	private JButton changeColor;
+	
 	public DayPanel(String daySet, Config configSet, int intSet, JList listSet, JCheckBox dayCheckSet, JScrollPane scrollSet,
 			JTextField textSet, JButton addSet, JButton deleteSet, JLabel labelSet)
 	{
@@ -38,6 +45,11 @@ public class DayPanel extends JPanel{
 		this.dayAddJob = addSet;
 		this.dayDeleteJob = deleteSet;
 		this.dayLabel = labelSet;
+		
+		// SWAP 3, TEAM 7
+		// ENHANCEMENT FROM REFACTORING
+		// Added this button to allow for changing background colors.
+		this.changeColor = new JButton();
 	}
 	
 	
@@ -81,6 +93,18 @@ public class DayPanel extends JPanel{
                     
                 }
             });
+            
+            // SWAP 3, TEAM 7
+            // ENHANCEMENT FROM REFACTORING
+            // Added the following button to allow for changing the display color for each day of the week.
+            this.changeColor.setText("Change Color");
+            this.changeColor.addActionListener(new java.awt.event.ActionListener() {
+            	@Override
+            	public void actionPerformed(java.awt.event.ActionEvent evt) {
+            		DayPanel.this.setBackground(JColorChooser.showDialog(getParent(), "Choose Background Color", DayPanel.this.getBackground()));
+            		DayPanel.this.repaint();
+            	}
+            });
 
             javax.swing.GroupLayout dayTabLayout = new javax.swing.GroupLayout(this);
             this.setLayout(dayTabLayout);
@@ -97,6 +121,14 @@ public class DayPanel extends JPanel{
                                 .addGroup(dayTabLayout.createSequentialGroup()
                                     .addGap(14, 14, 14)
                                     .addComponent(this.dayAddJob))
+                                    
+                                // SWAP 3, TEAM 7
+                                // ENHANCEMENT FROM REFACTORING
+                                // Added the button to the GroupLayout.
+                                .addGroup(dayTabLayout.createSequentialGroup()
+                                		.addGap(14, 14, 14)
+                                		.addComponent(this.changeColor))
+                                
                                 .addGroup(dayTabLayout.createSequentialGroup()
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(this.dayJobName, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
@@ -114,6 +146,13 @@ public class DayPanel extends JPanel{
                                 .addComponent(this.dayLabel))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(this.dayAddJob)
+                            
+                            // SWAP 3, TEAM 7
+                            // ENHANCEMENT FROM REFACTORING
+                            // Added the button to the GroupLayout.
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(this.changeColor)
+                            
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(this.dayDeleteJob))
                         .addComponent(this.dayScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
