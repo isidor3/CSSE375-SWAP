@@ -93,7 +93,13 @@ public class Config extends javax.swing.JFrame {
 		// SWAP 3, TEAM 7
 		// ENHANCEMENT FROM REFACTORING
 		// Added a default job that actually contains instructions on how to
-		// edit a day's jobs.
+		// edit a day's jobs. The refactorings done for this enhancement were
+		// helpful for adding a default job, but the easiest way to do so is to
+		// come into the code itself to add the job. Additionally, the job is
+		// only added to the days selected by the user. Having this
+		// functionality makes it significantly easier to add a routine job to
+		// the schedule, because it does not have to be added to each day
+		// individually.
 
 		if (!jobs.contains("Edit your jobs here, then remove this job."))
 			jobs.add("Edit your jobs here, then remove this job.");

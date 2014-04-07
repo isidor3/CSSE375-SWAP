@@ -30,6 +30,13 @@ public class DayPanel extends JPanel{
 	// SWAP 3, TEAM 7
 	// ENHANCEMENT FROM REFACTORING
 	// Added a button to each DayPanel to allow for changing the background color.
+	// The refactorings done for this enhancement did allow for easy editing of the
+	// colors within the Config panels.  However, the refactorings were either not
+	// complete enough, or did not require changing the data structure used for
+	// generating the schedule itself, so there is no easy way of changing the color
+	// of each day to match the color selected in Config.  As for adding value to
+	// the system, if this enhancement could be fully implemented, it could make for
+	// easier reading of the schedule, through highlighting of specific days. 
 	private JButton changeColor;
 	
 	public DayPanel(String daySet, Config configSet, int intSet, JList listSet, JCheckBox dayCheckSet, JScrollPane scrollSet,
